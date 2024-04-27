@@ -19,6 +19,7 @@ import {
 } from "@/lib/helpers/gemini"
 import { generateImage } from "@/lib/helpers/togetherai"
 import GeneratedImages from "./GeneratedImages"
+import { generateVideoFromImage } from "@/lib/helpers/fal"
 
 const userId = "123"
 
@@ -47,9 +48,9 @@ const ImageGen = ({ userImagesGen }: any) => {
     setGenVideos,
   } = useGlobalState()
 
-  const saveImagesToS3 = async (
+  const saveImagesToS3FromBlob = async (
     images: any,
-    saveType: string,
+    saveType: string = "generated",
     prompt: string,
     imageNumOfSeries: number
   ) => {
@@ -57,18 +58,72 @@ const ImageGen = ({ userImagesGen }: any) => {
       const blob = await (await fetch(image_base64)).blob()
       const file = new File([blob], "image.jpeg", { type: "image/jpeg" })
       const { url } = await uploadToS3(file)
+      console.log("saved ur from s3 ", url)
 
       if (saveType === "generated") {
         await createGenerated({
           url: url,
           userId: userId,
           prompt: prompt,
+          type: saveType,
         })
       }
       toast({
         title: "Successfully saved image!",
       })
     }
+  }
+  const saveImagesToS3FromURL = async (
+    imageUrl: string,
+    saveType: string = "generated",
+    prompt: string,
+    imageNumOfSeries: number
+  ) => {
+    const response = await fetch(imageUrl)
+    const blob = await response.blob()
+    const file = new File([blob], `image_${imageNumOfSeries}.jpeg`, {
+      type: "image/jpeg",
+    })
+    const { url } = await uploadToS3(file)
+    console.log("saved url from s3 ", url)
+
+    if (saveType === "generated") {
+      await createGenerated({
+        url: url,
+        userId: userId,
+        prompt: prompt,
+        type: saveType,
+      })
+    }
+    toast({
+      title: "Successfully saved image!",
+    })
+  }
+  const saveVideoToS3FromURL = async (
+    videoUrl: string,
+    saveType: string = "generated",
+    prompt: string,
+    videoNumOfSeries: number
+  ) => {
+    const response = await fetch(videoUrl)
+    const blob = await response.blob()
+    const file = new File([blob], `video_${videoNumOfSeries}.mp4`, {
+      type: "video/mp4",
+    })
+    const { url } = await uploadToS3(file)
+    console.log("saved url from s3 ", url)
+
+    if (saveType === "generated") {
+      await createGenerated({
+        url: url,
+        userId: userId,
+        prompt: prompt,
+        type: saveType,
+      })
+    }
+    toast({
+      title: "Successfully saved video!",
+    })
   }
   // New function for handling image selection
   const selectImage = (image) => {
@@ -139,23 +194,102 @@ const ImageGen = ({ userImagesGen }: any) => {
     const imagePrompts = await generateScript(script)
     setGenScript(script)
     // setGenImagePrompts(imagePrompts)
-    const imageDesc = await genImageStory(script)
+    const imageDesc = await genImageStory(script, characterDesc)
     console.log("imageDesc - ", imageDesc)
     console.log("handleGenFilm")
 
-    const image1 = await genImagePrompt(imageDesc, "1")
-    const image2 = await genImagePrompt(imageDesc, "2")
-    const image3 = await genImagePrompt(imageDesc, "3")
-    const image4 = await genImagePrompt(imageDesc, "4")
-    const image5 = await genImagePrompt(imageDesc, "5")
+    const image1 = await genImagePrompt(imageDesc, "1", characterDesc)
+    const image2 = await genImagePrompt(imageDesc, "2", characterDesc)
+    const image3 = await genImagePrompt(imageDesc, "3", characterDesc)
+    const image4 = await genImagePrompt(imageDesc, "4", characterDesc)
+    const image5 = await genImagePrompt(imageDesc, "5", characterDesc)
     setGenImagePrompts([image1, image2, image3, image4, image5])
     console.log("images: ", image1, image2, image3, image4, image5)
 
     // await generateImagesForPrompts([image1, image2, image3, image4, image5])
 
-    const image1Res = await generateImage(image1, 4)
+    console.log("previewSource ", previewSource)
+
+    const image1Res = await generateImage(image1, 1, previewSource)
     console.log("image1Res", image1Res)
-    saveImagesToS3(image1Res, "generated", imageDesc, 1)
+    saveImagesToS3FromURL(image1Res, "generated", imageDesc, 1)
+    const video1 = await axios.post("/api/video/generate", {
+      image_url: image1Res[0],
+    })
+    setGenImages((prev: any) => [...prev, image1Res])
+    console.log("video1 ", video1)
+    saveVideoToS3FromURL(
+      video1?.data?.video?.url,
+      "generatedVideo",
+      imageDesc,
+      1
+    )
+    setGenVideos((prev: any) => [...prev, video1?.data?.video?.url])
+
+    const image2Res = await generateImage(image2, 1, previewSource)
+    console.log("image2Res", image2Res)
+    saveImagesToS3FromURL(image2Res, "generated", imageDesc, 1)
+    const video2 = await axios.post("/api/video/generate", {
+      image_url: image2Res[0],
+    })
+    setGenImages((prev: any) => [...prev, image2Res])
+    console.log("video2 ", video2)
+    saveVideoToS3FromURL(
+      video2?.data?.video?.url,
+      "generatedVideo",
+      imageDesc,
+      1
+    )
+    setGenVideos((prev: any) => [...prev, video2?.data?.video?.url])
+
+    const image3Res = await generateImage(image3, 1, previewSource)
+    console.log("image3Res", image3Res)
+    saveImagesToS3FromURL(image3Res, "generated", imageDesc, 1)
+    const video3 = await axios.post("/api/video/generate", {
+      image_url: image3Res[0],
+    })
+    setGenImages((prev: any) => [...prev, image3Res])
+    console.log("video3 ", video3)
+    saveVideoToS3FromURL(
+      video3?.data?.video?.url,
+      "generatedVideo",
+      imageDesc,
+      1
+    )
+    setGenVideos((prev: any) => [...prev, video3?.data?.video?.url])
+
+    const image4Res = await generateImage(image4, 1, previewSource)
+    console.log("image4Res", image4Res)
+    saveImagesToS3FromURL(image4Res, "generated", imageDesc, 1)
+    const video4 = await axios.post("/api/video/generate", {
+      image_url: image4Res[0],
+    })
+    setGenImages((prev: any) => [...prev, image4Res])
+    console.log("video4 ", video4)
+    saveVideoToS3FromURL(
+      video4?.data?.video?.url,
+      "generatedVideo",
+      imageDesc,
+      1
+    )
+    setGenVideos((prev: any) => [...prev, video4?.data?.video?.url])
+
+    // video 5
+    const image5Res = await generateImage(image5, 1, previewSource)
+    console.log("image5Res", image5Res)
+    saveImagesToS3FromURL(image5Res, "generated", imageDesc, 1)
+    const video5 = await axios.post("/api/video/generate", {
+      image_url: image5Res[0],
+    })
+    setGenImages((prev: any) => [...prev, image5Res])
+    console.log("video5 ", video5)
+    saveVideoToS3FromURL(
+      video5?.data?.video?.url,
+      "generatedVideo",
+      imageDesc,
+      1
+    )
+    setGenVideos((prev: any) => [...prev, video5?.data?.video?.url])
   }
 
   // Save images to local storage

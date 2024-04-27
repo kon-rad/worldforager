@@ -23,7 +23,7 @@ const generateScript = async (plotDesc: string) => {
   return text
 }
 
-const genImageStory = async (imageStory: string) => {
+const genImageStory = async (imageStory: string, characterDesc: string) => {
   // For text-only input, use the gemini-pro model
   const model = genAI.getGenerativeModel({
     model: "gemini-pro",
@@ -32,6 +32,10 @@ const genImageStory = async (imageStory: string) => {
   const prompt = `Write a list of detailed descriptions of images that tell this story. 
     List them from 1-5. 
     For example: 1. The main character is sitting at a desk while the sun is rising outside his window.
+
+    Make sure the story features this main character. The main character should appear in the center
+    of every one of the 5 scenes: 
+    ${characterDesc}
 
     The story:
     ${imageStory}
@@ -85,7 +89,11 @@ const generateImagePrompts = async (filmScript: string) => {
   }
 }
 
-const genImagePrompt = async (imagesDesc: string, imageNumber: string) => {
+const genImagePrompt = async (
+  imagesDesc: string,
+  imageNumber: string,
+  characterDesc: string
+) => {
   // For text-only input, use the gemini-pro model
   const model = genAI.getGenerativeModel({
     model: "gemini-pro",
@@ -93,11 +101,15 @@ const genImagePrompt = async (imagesDesc: string, imageNumber: string) => {
 
   const prompt = `Write a prompt for an image generating AI model.
     Take the description number ${imageNumber} from this story. 
-    Then generate a prompt for an AI image genrator.
+    Then generate a prompt for an AI image generator.
+    Make sure the main character is the feature of the story, and that they are clearly visible.
 
 
     The images:
     ${imagesDesc}
+
+    The character description:
+    ${characterDesc} 
 
     Remember only return the prompt for the image number: ${imageNumber}
     `

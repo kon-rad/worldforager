@@ -45,8 +45,6 @@ model User {
   sessions                Session[]
   EmailList               EmailList[]
   Tool                    Tool[]
-  Prompt                  Prompt[]
-  Generated               Generated[]
 }
 
 model Project {
@@ -231,11 +229,10 @@ model toolsog {
 model Prompt {
   id        String   @id @default(cuid())
   content   String?  @db.Text
-  userId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   genId     String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
 
   @@map("prompts")
 }
@@ -249,5 +246,4 @@ model Generated {
   model     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

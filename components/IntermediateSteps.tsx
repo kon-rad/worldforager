@@ -16,6 +16,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { FaCheckCircle } from "react-icons/fa"
 
 const userId = "123"
 
@@ -28,6 +29,7 @@ const IntermediateSteps = () => {
   const [selectedImage, setSelectedImage] = useState(null) // New state for storing selected image
   const [previewSource, setPreviewSource] = useState("")
   const { uploadToS3, files } = useS3Upload()
+
   const { toast } = useToast()
   const {
     characterDesc,
@@ -43,27 +45,79 @@ const IntermediateSteps = () => {
     genVideos,
     setGenVideos,
   } = useGlobalState()
-
+  const renderGenImages = (genImageUrls: any = []) => {
+    return (
+      <div className="flex flex-wrap justify-center gap-4">
+        {(genImageUrls || []).map((url: string, index: number) => (
+          <img
+            key={index}
+            src={url}
+            alt={`Generated Image ${index + 1}`}
+            className="m-2 rounded-lg shadow-lg"
+            style={{ width: "200px", height: "auto" }}
+          />
+        ))}
+      </div>
+    )
+  }
+  const renderGenVideos = (genVideoUrls: any = []) => {
+    return (
+      <div className="flex flex-wrap justify-center gap-4">
+        {genVideoUrls.map((url: string, index: number) => (
+          <video
+            key={index}
+            src={url}
+            alt={`Generated Video ${index + 1}`}
+            className="m-2 rounded-lg shadow-lg"
+            style={{ width: "200px", height: "auto" }}
+            autoPlay
+            loop
+            muted
+          />
+        ))}
+      </div>
+    )
+  }
   // Save images to local storage
   return (
     <div className="flex w-full flex-col items-center">
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion type="multiple" collapsible className="w-full">
         <h1 className="text-2xl">Intermediate Steps</h1>
         <AccordionItem value="item-2">
-          <AccordionTrigger>Generated Script</AccordionTrigger>
+          <AccordionTrigger>
+            {genScript && <FaCheckCircle className="mr-2 text-green-400" />}
+            Generated Script
+          </AccordionTrigger>
           <AccordionContent>{genScript}</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3">
-          <AccordionTrigger>Generated Image Prompts</AccordionTrigger>
-          <AccordionContent>{genImagePrompts}</AccordionContent>
+          <AccordionTrigger>
+            {genImagePrompts.length > 0 && (
+              <FaCheckCircle className="mr-2 text-green-400" />
+            )}
+            Generated Image Prompts
+          </AccordionTrigger>
+          <AccordionContent>
+            {(genImagePrompts || []).join("\n\n\n prompt: \n\n")}
+          </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-4">
-          <AccordionTrigger>Generated Images</AccordionTrigger>
-          <AccordionContent>{genImages}</AccordionContent>
+          <AccordionTrigger>
+            {genImages.length > 0 && (
+              <FaCheckCircle className="mr-2 text-green-400" />
+            )}
+            Generated Images
+          </AccordionTrigger>
+          <AccordionContent>{renderGenImages(genImages)}</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-5">
-          <AccordionTrigger>Generated Videos</AccordionTrigger>
-          <AccordionContent>{genVideos}</AccordionContent>
+          <AccordionTrigger>
+            {genVideos.length > 0 && (
+              <FaCheckCircle className="mr-2 text-green-400" />
+            )}
+            Generated Videos
+          </AccordionTrigger>
+          <AccordionContent>{renderGenVideos(genVideos)}</AccordionContent>
         </AccordionItem>
       </Accordion>
     </div>

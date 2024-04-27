@@ -2,7 +2,11 @@ import ContactForm from "@/components/pages/contact-form"
 import HeadingText from "@/components/heading-text"
 import ImageGen from "@/components/ImageGen"
 import Gallery from "@/components/Gallery"
-import { getAllGeneratedByUserId } from "@/lib/database/generated"
+import GalleryVideo from "@/components/GalleryVideo"
+import {
+  getAllGeneratedByUserId,
+  getAllGeneratedByUserIdType,
+} from "@/lib/database/generated"
 
 export const metadata = {
   title: "Studio",
@@ -10,6 +14,10 @@ export const metadata = {
 
 export default async function Studio() {
   const userImagesGen = await getAllGeneratedByUserId("123")
+  const userGenVideos = await getAllGeneratedByUserIdType(
+    "123",
+    "generatedVideo"
+  )
   return (
     <main className="container flex flex-col items-center py-8">
       <div className="flex flex-col items-center space-y-2 text-center">
@@ -18,6 +26,7 @@ export default async function Studio() {
         </HeadingText>
         <ImageGen userImagesGen={userImagesGen} />
         <Gallery userImagesGen={userImagesGen} />
+        <GalleryVideo userGenVideos={userGenVideos} />
       </div>
     </main>
   )

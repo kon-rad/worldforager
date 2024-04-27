@@ -1,3 +1,5 @@
+import axios from "axios"
+
 const generateImages = async (prompts: any) => {}
 
 const faceSwapOnImage = async (image: any, target: any) => {
@@ -36,7 +38,11 @@ const faceSwapOnImage = async (image: any, target: any) => {
   }
 }
 
-const generateImage = async (prompt: string, genN: number = 4) => {
+const generateImage = async (
+  prompt: string,
+  genN: number = 4,
+  screenshot: string
+) => {
   console.log(process.env.NEXT_PUBLIC_TOGETHER_API_KEY)
 
   try {
@@ -69,16 +75,46 @@ const generateImage = async (prompt: string, genN: number = 4) => {
     // )
 
     // Invoke this function after setting the images results in the generateImage function
-    return data.output.choices.map((choice) => {
+    const resultVal = data.output.choices.map((choice) => {
       const imageBase64 = `data:image/jpeg;base64,${choice.image_base64}`
       return {
         ...choice,
         image_base64: imageBase64,
       }
     })
+
+    const swappedImage = await callImageGenerateAPIFaceswap(
+      resultVal,
+      screenshot
+    )
+
+    return swappedImage
   } catch (error) {
     console.error("Failed to generate image:", error)
   }
 }
+const callImageGenerateAPIFaceswap = async (
+  images: any[],
+  screenshot: string,
+  username: string = "123"
+) => {
+  const results = await Promise.all(
+    images.map(async (image) => {
+      try {
+        const response = await axios.post("/api/image/generate", {
+          source: image.image_base64,
+          target: screenshot,
+          username: username,
+        })
+        console.log("faceswap response ", response)
 
+        return response?.data?.response
+      } catch (error) {
+        console.error("Error calling /api/image/generate:", error)
+        return null
+      }
+    })
+  )
+  return results.filter((result) => result !== null)
+}
 export { generateImage, faceSwapOnImage }

@@ -10,7 +10,7 @@ const Gallery = ({ userImagesGen }: any) => {
       {userImagesGen.map((image, index) => (
         <div key={index} className="overflow-hidden rounded-lg shadow-lg">
           <img
-            src={`data:image/jpeg;base64,${image}`}
+            src={image.url}
             className="rounded-lg"
             width="200"
             height="200"

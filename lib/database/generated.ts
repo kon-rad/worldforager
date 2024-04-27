@@ -35,6 +35,20 @@ async function getAllGeneratedByUserId(userId: string) {
     where: {
       userId,
     },
+    orderBy: {
+      createdAt: "desc", // Sorts by createdAt date, earliest first
+    },
+  })
+}
+async function getAllGeneratedByUserIdType(userId: string, type: string) {
+  return await prisma.generated.findMany({
+    where: {
+      userId: userId,
+      type: type,
+    },
+    orderBy: {
+      createdAt: "desc", // Sorts by createdAt date, earliest first
+    },
   })
 }
 
@@ -44,4 +58,5 @@ export {
   updateGenerated,
   createGenerated,
   deleteGenerated,
+  getAllGeneratedByUserIdType,
 }

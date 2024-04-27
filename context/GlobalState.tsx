@@ -15,9 +15,9 @@ export const GlobalStateProvider: React.FC<{ children: React.ReactNode }> = ({
   )
   const [previewUrl, setPreviewUrl] = useState("")
   const [genScript, setGenScript] = useState("")
-  const [genImagePrompts, setGenImagePrompts] = useState("")
-  const [genImages, setGenImages] = useState("")
-  const [genVideos, setGenVideos] = useState("")
+  const [genImagePrompts, setGenImagePrompts] = useState([])
+  const [genImages, setGenImages] = useState([])
+  const [genVideos, setGenVideos] = useState([])
 
   // Value to be passed to provider
   const value = {
