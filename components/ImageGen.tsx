@@ -10,10 +10,19 @@ import { useS3Upload } from "next-s3-upload"
 import { useToast } from "@/components/ui/use-toast"
 import { createGenerated } from "@/lib/database/generated"
 import { useGlobalState } from "@/context/GlobalState"
+import IntermediateSteps from "./IntermediateSteps"
+import {
+  generateScript,
+  generateImagePrompts,
+  genImageStory,
+  genImagePrompt,
+} from "@/lib/helpers/gemini"
+import { generateImage } from "@/lib/helpers/togetherai"
+import GeneratedImages from "./GeneratedImages"
 
 const userId = "123"
 
-const ImageGen = () => {
+const ImageGen = ({ userImagesGen }: any) => {
   const [imagesResults, setImagesResults] = useState([])
   const [faceSwappedImage, setFaceSwappedImage] = useState()
   const [prompt, setPrompt] = useState("")
@@ -23,68 +32,38 @@ const ImageGen = () => {
   const [previewSource, setPreviewSource] = useState("")
   const { uploadToS3, files } = useS3Upload()
   const { toast } = useToast()
-  const { characterDesc, setCharacterDesc, filmPlot, setFilmPlot } =
-    useGlobalState()
+  const {
+    characterDesc,
+    setCharacterDesc,
+    filmPlot,
+    setFilmPlot,
+    genScript,
+    setGenScript,
+    genImagePrompts,
+    setGenImagePrompts,
+    genImages,
+    setGenImages,
+    genVideos,
+    setGenVideos,
+  } = useGlobalState()
 
-  const generateImage = async () => {
-    console.log(process.env.NEXT_PUBLIC_TOGETHER_API_KEY)
-
-    try {
-      const response = await fetch("https://api.together.xyz/inference", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_TOGETHER_API_KEY}`,
-        },
-        body: JSON.stringify({
-          // model: "runwayml/stable-diffusion-v1-5",
-          // model: "stabilityai/stable-diffusion-xl-base-1.0",
-          model: "SG161222/Realistic_Vision_V3.0_VAE",
-          prompt: prompt,
-          n: 4,
-          steps: 20,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok")
-      }
-
-      const data = await response.json()
-      console.log("data", data)
-
-      saveImagesToS3(
-        data.output.choices.map((choice) => choice.image_base64),
-        "generated"
-      )
-
-      // Invoke this function after setting the images results in the generateImage function
-      setImagesResults(
-        data.output.choices.map((choice) => {
-          const imageBase64 = `data:image/jpeg;base64,${choice.image_base64}`
-          return {
-            ...choice,
-            image_base64: imageBase64,
-          }
-        })
-      )
-    } catch (error) {
-      console.error("Failed to generate image:", error)
-    }
-  }
-  const saveImagesToS3 = async (images: any, saveType: string) => {
-    for (const imageBase64 of images) {
-      const blob = await (await fetch(imageBase64)).blob()
+  const saveImagesToS3 = async (
+    images: any,
+    saveType: string,
+    prompt: string,
+    imageNumOfSeries: number
+  ) => {
+    for (const { image_base64 } of images) {
+      const blob = await (await fetch(image_base64)).blob()
       const file = new File([blob], "image.jpeg", { type: "image/jpeg" })
       const { url } = await uploadToS3(file)
 
       if (saveType === "generated") {
-        // Assuming createGenerated is imported or available in this context
         await createGenerated({
           url: url,
           userId: userId,
           prompt: prompt,
-        }) // Ensure userId is defined or passed to this function
+        })
       }
       toast({
         title: "Successfully saved image!",
@@ -138,39 +117,6 @@ const ImageGen = () => {
       console.error("Failed to generate caption:", error)
     }
   }
-  // New function for face swapping
-  const faceSwap = async () => {
-    console.log("Face swapping with image:", selectedImage)
-    // Implement the face swap logic here...
-    if (!selectedImage) {
-      alert("oops, you need to select an image first")
-    }
-
-    try {
-      const base64Source = previewSource.split(",")[1]
-      const base64Target = selectedImage.split(",")[1]
-
-      const result = await axios.post("/api/image/generate", {
-        source: base64Source,
-        target: base64Target,
-      })
-      console.log("swap result ", result)
-
-      const image = result?.data?.response
-
-      setFaceSwappedImage(image)
-      generateCaption()
-
-      // Save the face-swapped image to local storage
-      const existingSwappedImages = JSON.parse(
-        localStorage.getItem("swappedImages") || "[]"
-      )
-      const newSwappedImages = [...existingSwappedImages, image]
-      localStorage.setItem("swappedImages", JSON.stringify(newSwappedImages))
-    } catch (error) {
-      console.error("Error sending image to server:", error)
-    }
-  }
   const handleSourceImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -184,8 +130,32 @@ const ImageGen = () => {
       reader.readAsDataURL(file)
     }
   }
-  const handleIgPost = async () => {
-    console.log("handleIgPost")
+  const saveCharacter = async () => {
+    console.log("saveCharacter")
+  }
+  const handleGenFilm = async () => {
+    // { generateScript, generateImagePrompts }
+    const script = await generateScript(filmPlot)
+    const imagePrompts = await generateScript(script)
+    setGenScript(script)
+    // setGenImagePrompts(imagePrompts)
+    const imageDesc = await genImageStory(script)
+    console.log("imageDesc - ", imageDesc)
+    console.log("handleGenFilm")
+
+    const image1 = await genImagePrompt(imageDesc, "1")
+    const image2 = await genImagePrompt(imageDesc, "2")
+    const image3 = await genImagePrompt(imageDesc, "3")
+    const image4 = await genImagePrompt(imageDesc, "4")
+    const image5 = await genImagePrompt(imageDesc, "5")
+    setGenImagePrompts([image1, image2, image3, image4, image5])
+    console.log("images: ", image1, image2, image3, image4, image5)
+
+    // await generateImagesForPrompts([image1, image2, image3, image4, image5])
+
+    const image1Res = await generateImage(image1, 4)
+    console.log("image1Res", image1Res)
+    saveImagesToS3(image1Res, "generated", imageDesc, 1)
   }
 
   // Save images to local storage
@@ -195,10 +165,10 @@ const ImageGen = () => {
       <Textarea
         value={characterDesc}
         onChange={(e) => setCharacterDesc(e.target.value)}
-        className="my-4 h-[300px] w-full max-w-[700px]"
+        className="my-4 h-[200px] w-full max-w-[700px]"
         placeholder="Describe your character"
       />
-      <Button onClick={handleIgPost} className="my-2">
+      <Button onClick={saveCharacter} className="my-2">
         save character
       </Button>
       <h2 className="my-2 text-xl">2. Take a selfie</h2>
@@ -210,64 +180,11 @@ const ImageGen = () => {
         className="my-4 h-[300px] w-full max-w-[700px]"
         placeholder="Describe the film plot"
       />
-      <div className="flex w-full max-w-screen-xl flex-wrap items-center">
-        {imagesResults &&
-          imagesResults.map((imgRes: any, index) => (
-            <div
-              key={index}
-              className="relative rounded p-4 shadow-xl"
-              onClick={() => selectImage(imgRes.image_base64)}
-            >
-              {selectedImage === imgRes.image_base64 && (
-                <div className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
-                  ✓ {/* Checkmark icon or image */}
-                </div>
-              )}
-              <img
-                src={imgRes.image_base64}
-                className="rounded-xl"
-                width="200px"
-                height="200px"
-                alt="ai generated image"
-              />
-            </div>
-          ))}
-      </div>
-      <div className="my-4 flex flex-col items-center justify-center">
-        {faceSwappedImage && (
-          <div className="rounded p-4 shadow-xl">
-            <img
-              src={faceSwappedImage}
-              className="rounded-xl"
-              width="400px"
-              height="400px"
-              alt="ai generated image"
-            />
-            <Textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              className="my-4 h-[300px] w-full max-w-[700px]"
-              placeholder="Instagram Caption"
-            />
-            <Button onClick={handleIgPost} className="my-2">
-              Post to Instagram
-            </Button>
-          </div>
-        )}
-      </div>
-      <Textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        className="my-4 w-full max-w-[700px]"
-        placeholder="Enter prompt for image generation"
-      />
-      <Button onClick={generateImage}>Generate</Button>
-      {selectedImage && (
-        <Button onClick={faceSwap} className="mt-4">
-          Face Swap
-        </Button> // Show this button only when an image is selected
-      )}
-      <SwappedImagesDisplay />
+      <Button onClick={handleGenFilm} className="my-2">
+        generate film
+      </Button>
+      <IntermediateSteps />
+      <GeneratedImages userImagesGen={userImagesGen} />
     </div>
   )
 }

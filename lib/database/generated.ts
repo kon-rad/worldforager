@@ -30,8 +30,7 @@ async function deleteGenerated(id: string) {
     where: { id },
   })
 }
-async function getAllGeneratedByUserId(input: any) {
-  const { userId } = input
+async function getAllGeneratedByUserId(userId: string) {
   return await prisma.generated.findMany({
     where: {
       userId,

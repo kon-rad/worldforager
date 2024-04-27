@@ -7,9 +7,17 @@ const GlobalStateContext = createContext<any | undefined>(undefined)
 export const GlobalStateProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [characterDesc, setCharacterDesc] = useState("")
-  const [filmPlot, setFilmPlot] = useState("")
+  const [characterDesc, setCharacterDesc] = useState(
+    "Konrad, a white guy in 30s, developer, smart, wearing a black hoodie, fit like a fighter"
+  )
+  const [filmPlot, setFilmPlot] = useState(
+    "Konrad wins an ai hackathon in san francisco"
+  )
   const [previewUrl, setPreviewUrl] = useState("")
+  const [genScript, setGenScript] = useState("")
+  const [genImagePrompts, setGenImagePrompts] = useState("")
+  const [genImages, setGenImages] = useState("")
+  const [genVideos, setGenVideos] = useState("")
 
   // Value to be passed to provider
   const value = {
@@ -19,6 +27,14 @@ export const GlobalStateProvider: React.FC<{ children: React.ReactNode }> = ({
     setPreviewUrl,
     filmPlot,
     setFilmPlot,
+    genScript,
+    setGenScript,
+    genImagePrompts,
+    setGenImagePrompts,
+    genImages,
+    setGenImages,
+    genVideos,
+    setGenVideos,
   }
 
   return (
