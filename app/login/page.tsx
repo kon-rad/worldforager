@@ -1,40 +1,40 @@
-import Link from "next/link";
-import { headers } from "next/headers";
-import { createClient } from "@/lib/utils/supabase/server";
-import { redirect } from "next/navigation";
-import { SubmitButton } from "./submit-button";
+import Link from "next/link"
+import { headers } from "next/headers"
+import { createClient } from "@/lib/utils/supabase/server"
+import { redirect } from "next/navigation"
+import { SubmitButton } from "./submit-button"
 
 export default function Login({
   searchParams,
 }: {
-  searchParams: { message: string };
+  searchParams: { message: string }
 }) {
   const signIn = async (formData: FormData) => {
-    "use server";
+    "use server"
 
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const supabase = createClient();
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const supabase = createClient()
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    });
+    })
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/login?message=Could not authenticate user")
     }
 
-    return redirect("/dashboard");
-  };
+    return redirect("/dashboard")
+  }
 
   const signUp = async (formData: FormData) => {
-    "use server";
+    "use server"
 
-    const origin = headers().get("origin");
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const supabase = createClient();
+    const origin = headers().get("origin")
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const supabase = createClient()
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -42,15 +42,32 @@ export default function Login({
       options: {
         emailRedirectTo: `${origin}/auth/callback`,
       },
-    });
-    console.log("errror: ", error);
+    })
+    console.log("errror: ", error)
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/login?message=Could not authenticate user")
     }
 
-    return redirect("/login?message=Check email to continue sign in process");
-  };
+    return redirect("/login?message=Check email to continue sign in process")
+  }
+  const signInWithGoogle = async () => {
+    "use server"
+
+    const supabase = createClient()
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    })
+
+    if (error) {
+      console.error("Error signing in with Google:", error.message)
+      return redirect("/login?message=Could not authenticate with Google")
+    }
+
+    // Redirect to dashboard or a callback URL after successful sign in
+    return redirect("/dashboard")
+  }
 
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
@@ -109,6 +126,14 @@ export default function Login({
         >
           Sign Up
         </SubmitButton>
+
+        <SubmitButton
+          onClick={signInWithGoogle} // Use onClick instead of formAction for OAuth flow
+          className="mb-2 rounded-md bg-blue-500 px-4 py-2 text-white"
+          pendingText="Signing in with Google..."
+        >
+          Sign In with Google
+        </SubmitButton>
         {searchParams?.message && (
           <p className="mt-4 bg-foreground/10 p-4 text-center text-foreground">
             {searchParams.message}
@@ -116,5 +141,5 @@ export default function Login({
         )}
       </form>
     </div>
-  );
+  )
 }
