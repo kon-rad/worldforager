@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import { ThemeProvider } from "@/components/theme-provider"
 import { settings } from "@/config/settings"
+import Providers from "./providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -68,19 +69,21 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body
         className={`${inter.className} flex min-h-screen flex-col bg-background text-primary`}
       >
-        {settings.themeToggleEnabled ? (
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <Navbar />
-            {children}
-            <Footer />
-          </ThemeProvider>
-        ) : (
-          <ThemeProvider attribute="class" forcedTheme="light" enableSystem>
-            <Navbar />
-            {children}
-            <Footer />
-          </ThemeProvider>
-        )}
+        <Providers>
+          {settings.themeToggleEnabled ? (
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <Navbar />
+              {children}
+              <Footer />
+            </ThemeProvider>
+          ) : (
+            <ThemeProvider attribute="class" forcedTheme="light" enableSystem>
+              <Navbar />
+              {children}
+              <Footer />
+            </ThemeProvider>
+          )}
+        </Providers>
       </body>
     </html>
   )

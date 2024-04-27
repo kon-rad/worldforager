@@ -9,11 +9,10 @@ import SwappedImagesDisplay from "./SwappedImagesDisplay"
 import { useS3Upload } from "next-s3-upload"
 import { useToast } from "@/components/ui/use-toast"
 import { createGenerated } from "@/lib/database/generated"
-import { useGlobalState } from "@/context/GlobalState"
 
 const userId = "123"
 
-const ImageGen = () => {
+const Screenshot = () => {
   const [imagesResults, setImagesResults] = useState([])
   const [faceSwappedImage, setFaceSwappedImage] = useState()
   const [prompt, setPrompt] = useState("")
@@ -23,8 +22,6 @@ const ImageGen = () => {
   const [previewSource, setPreviewSource] = useState("")
   const { uploadToS3, files } = useS3Upload()
   const { toast } = useToast()
-  const { characterDesc, setCharacterDesc, filmPlot, setFilmPlot } =
-    useGlobalState()
 
   const generateImage = async () => {
     console.log(process.env.NEXT_PUBLIC_TOGETHER_API_KEY)
@@ -191,25 +188,6 @@ const ImageGen = () => {
   // Save images to local storage
   return (
     <div className="flex w-full flex-col items-center">
-      <h1 className="text-xl">1. Describe your character</h1>
-      <Textarea
-        value={characterDesc}
-        onChange={(e) => setCharacterDesc(e.target.value)}
-        className="my-4 h-[300px] w-full max-w-[700px]"
-        placeholder="Describe your character"
-      />
-      <Button onClick={handleIgPost} className="my-2">
-        save character
-      </Button>
-      <h2 className="my-2 text-xl">2. Take a selfie</h2>
-      <UserImage setPreviewSource={setPreviewSource} />
-      <h2 className="my-2 text-xl">3. Describe the plot of the film</h2>
-      <Textarea
-        value={filmPlot}
-        onChange={(e) => setFilmPlot(e.target.value)}
-        className="my-4 h-[300px] w-full max-w-[700px]"
-        placeholder="Describe the film plot"
-      />
       <div className="flex w-full max-w-screen-xl flex-wrap items-center">
         {imagesResults &&
           imagesResults.map((imgRes: any, index) => (
@@ -233,27 +211,6 @@ const ImageGen = () => {
             </div>
           ))}
       </div>
-      <div className="my-4 flex flex-col items-center justify-center">
-        {faceSwappedImage && (
-          <div className="rounded p-4 shadow-xl">
-            <img
-              src={faceSwappedImage}
-              className="rounded-xl"
-              width="400px"
-              height="400px"
-              alt="ai generated image"
-            />
-            <Textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              className="my-4 h-[300px] w-full max-w-[700px]"
-              placeholder="Instagram Caption"
-            />
-            <Button onClick={handleIgPost} className="my-2">
-              Post to Instagram
-            </Button>
-          </div>
-        )}
       </div>
       <Textarea
         value={prompt}
@@ -267,9 +224,8 @@ const ImageGen = () => {
           Face Swap
         </Button> // Show this button only when an image is selected
       )}
-      <SwappedImagesDisplay />
     </div>
   )
 }
 
-export default ImageGen
+export default Screenshot

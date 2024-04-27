@@ -5,12 +5,13 @@ import React from "react"
 import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs"
 import { SessionContextProvider } from "@supabase/auth-helpers-react"
 import { useState } from "react"
+import { GlobalStateProvider } from "@/context/GlobalState"
 
-export default function Provider({ children }: { children: React.ReactNode }) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   const [supabaseClient] = useState(() => createPagesBrowserClient())
   return (
     <SessionContextProvider supabaseClient={supabaseClient}>
-      {children}
+      <GlobalStateProvider>{children}</GlobalStateProvider>
     </SessionContextProvider>
   )
 }

@@ -12,7 +12,7 @@ export const navLinks = [
     path: "/studio",
   },
   {
-    route: "Contact",
-    path: "/contact",
+    route: "Login",
+    path: "/login",
   },
 ]

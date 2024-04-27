@@ -56,9 +56,17 @@ export default function Login({
 
     const supabase = createClient()
 
-    const { error } = await supabase.auth.signInWithOAuth({
+    // const { error } = await supabase.auth.signInWithOAuth({
+    //   provider: "google",
+    // })
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${origin}/auth/callback`,
+      },
     })
+
+    console.log("google auth data", data)
 
     if (error) {
       console.error("Error signing in with Google:", error.message)

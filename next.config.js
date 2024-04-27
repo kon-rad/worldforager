@@ -1,6 +1,4 @@
 
-
-module.exports = nextConfig
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // strict mode causes double render - useEffect([]) will be called twice

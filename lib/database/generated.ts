@@ -1,0 +1,48 @@
+"use server"
+
+import prisma from "@/lib/db"
+// Assuming prisma is an instance of PrismaClient
+
+// Function to get all entries from the 'Generated' table
+async function getAllGenerated() {
+  return await prisma.generated.findMany()
+}
+
+// Function to create a new entry in the 'Generated' table
+async function createGenerated(input: any) {
+  return await prisma.generated.create({
+    data: input,
+  })
+}
+
+// Function to update an entry in the 'Generated' table
+async function updateGenerated(input: any) {
+  const { id, ...data } = input
+  return await prisma.generated.update({
+    where: { id },
+    data,
+  })
+}
+
+// Function to delete an entry from the 'Generated' table
+async function deleteGenerated(id: string) {
+  return await prisma.generated.delete({
+    where: { id },
+  })
+}
+async function getAllGeneratedByUserId(input: any) {
+  const { userId } = input
+  return await prisma.generated.findMany({
+    where: {
+      userId,
+    },
+  })
+}
+
+export {
+  getAllGenerated,
+  getAllGeneratedByUserId,
+  updateGenerated,
+  createGenerated,
+  deleteGenerated,
+}
