@@ -1,4 +1,4 @@
-# DreamGram
+# worldforager
 
 Easy to setup, customizable, quick, and responsive landing page starter built with [Next.js](https://nextjs.org) and [shadcn/ui](https://ui.shadcn.com).
 
@@ -6,7 +6,7 @@ Easy to setup, customizable, quick, and responsive landing page starter built wi
 
 ## Preview
 
-![DreamGram Preview](public/og.jpg)
+![worldforager Preview](public/og.jpg)
 
 ## Getting Started
 

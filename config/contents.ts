@@ -8,28 +8,28 @@ import { HeroHeader, ContentSection } from "@/types/contents"
  ==================== */
 
 export const heroHeader: HeroHeader = {
-  header: `Landing pages made easy`,
-  subheader: `Easy to setup. Customizable. Quick. Responsive.`,
+  header: `Free your immagination`,
+  subheader: `AI generated images and video for your social media`,
   image: `/hero-img.webp`,
 }
 
 export const featureCards: ContentSection = {
-  header: `Powered by`,
-  subheader: `What makes DreamGram possible`,
+  header: `How it works`,
+  subheader: `Easy to use AI generated content`,
   content: [
     {
-      text: `Next.js`,
-      subtext: `The React Framework`,
+      text: `1. Take a screenshot`,
+      subtext: `This photo will be the basis for the AI generated image`,
       icon: "nextjs",
     },
     {
-      text: `shadcn/ui`,
-      subtext: `Beautifully designed components`,
+      text: `2. Describe where you want to appear`,
+      subtext: `You can get assistance from an AI brainstorm buddy`,
       icon: "shadcnUi",
     },
     {
-      text: `Vercel`,
-      subtext: `Develop. Preview. Ship.`,
+      text: `3. Generate Image`,
+      subtext: `Image is generated and ready to post to Instagram or other social media platforms`,
       icon: "vercel",
     },
   ],
@@ -37,7 +37,7 @@ export const featureCards: ContentSection = {
 
 export const features: ContentSection = {
   header: `Features`,
-  subheader: `Why use DreamGram?`,
+  subheader: `Why use worldforager?`,
   image: `/features-img.webp`,
   content: [
     {

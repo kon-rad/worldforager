@@ -60,12 +60,27 @@ const ImageGen = () => {
       console.error("Failed to generate image:", error)
     }
   }
-  const saveImageToLocalStorage = (images) => {
+  const saveImageToLocalStorage = async (images) => {
     const existingImages = JSON.parse(
       localStorage.getItem("savedImages") || "[]"
     )
     const newImages = [...existingImages, ...images]
     localStorage.setItem("savedImages", JSON.stringify(newImages))
+
+    try {
+      console.log("images: ", images)
+
+      const { url } = await uploadToS3(file)
+      console.log("s3 url: ", url)
+      setUrl(url)
+      // const res = await updateSite({ image: url }, siteId)
+
+      console.log("uploading to s3 filename: ", file)
+      console.log("update db res: ", res)
+      toast.success(`Successfully updated main image!`)
+    } catch (error) {
+      console.error("Error uploading files:", error)
+    }
   }
   // New function for handling image selection
   const selectImage = (image) => {
@@ -203,7 +218,7 @@ const ImageGen = () => {
             <Textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              className="my-4 w-full max-w-[700px]"
+              className="my-4 h-[300px] w-full max-w-[700px]"
               placeholder="Instagram Caption"
             />
             <Button onClick={handleIgPost} className="my-2">
