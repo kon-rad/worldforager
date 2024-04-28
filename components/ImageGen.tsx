@@ -107,20 +107,18 @@ const ImageGen = ({ userImagesGen }: any) => {
   ) => {
     const response = await fetch(videoUrl)
     const blob = await response.blob()
-    const file = new File([blob], `video_${videoNumOfSeries}.mp4`, {
+    const file = new File([blob], `video--123.mp4`, {
       type: "video/mp4",
     })
     const { url } = await uploadToS3(file)
     console.log("saved url from s3 ", url)
 
-    if (saveType === "generated") {
-      await createGenerated({
-        url: url,
-        userId: userId,
-        prompt: prompt,
-        type: saveType,
-      })
-    }
+    return await createGenerated({
+      url: url,
+      userId: userId,
+      prompt: prompt,
+      type: saveType,
+    })
     toast({
       title: "Successfully saved video!",
     })
@@ -209,6 +207,7 @@ const ImageGen = ({ userImagesGen }: any) => {
     // await generateImagesForPrompts([image1, image2, image3, image4, image5])
 
     console.log("previewSource ", previewSource)
+    const videoUrls = []
 
     const image1Res = await generateImage(image1, 1, previewSource)
     console.log("image1Res", image1Res)
@@ -283,19 +282,28 @@ const ImageGen = ({ userImagesGen }: any) => {
     })
     setGenImages((prev: any) => [...prev, image5Res])
     console.log("video5 ", video5)
-    saveVideoToS3FromURL(
+    const vidUrl5 = await saveVideoToS3FromURL(
       video5?.data?.video?.url,
       "generatedVideo",
       imageDesc,
       1
     )
     setGenVideos((prev: any) => [...prev, video5?.data?.video?.url])
+    const newVideoUrls = [...genVideos, video5?.data?.video?.url]
+
+    // const combinedVideo = await axios.post("/api/video/combine", {
+    //   videoUrls: newVideoUrls,
+    // })
+    // console.log("combinedVideo", combinedVideo)
+  }
+  const handlePost = () => {
+    console.log("handlePost")
   }
 
   // Save images to local storage
   return (
     <div className="flex w-full flex-col items-center">
-      <h1 className="text-xl">1. Describe your character</h1>
+      <h1 className="mb-6  mt-12 text-xl">1. Describe your character</h1>
       <Textarea
         value={characterDesc}
         onChange={(e) => setCharacterDesc(e.target.value)}
@@ -305,17 +313,20 @@ const ImageGen = ({ userImagesGen }: any) => {
       <Button onClick={saveCharacter} className="my-2">
         save character
       </Button>
-      <h2 className="my-2 text-xl">2. Take a selfie</h2>
+      <h2 className="mb-6 mt-12 text-xl">2. Take a selfie</h2>
       <UserImage setPreviewSource={setPreviewSource} />
-      <h2 className="my-2 text-xl">3. Describe the plot of the film</h2>
+      <h2 className="mb-6 mt-12 text-xl">3. Describe the plot of the film</h2>
       <Textarea
         value={filmPlot}
         onChange={(e) => setFilmPlot(e.target.value)}
-        className="my-4 h-[300px] w-full max-w-[700px]"
+        className="my-4  mb-12 h-[300px] w-full max-w-[700px]"
         placeholder="Describe the film plot"
       />
       <Button onClick={handleGenFilm} className="my-2">
         generate film
+      </Button>
+      <Button onClick={handlePost} className="my-2">
+        post to Instagram
       </Button>
       <IntermediateSteps />
       <GeneratedImages userImagesGen={userImagesGen} />

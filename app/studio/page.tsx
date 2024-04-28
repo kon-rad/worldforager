@@ -13,7 +13,7 @@ export const metadata = {
 }
 
 export default async function Studio() {
-  const userImagesGen = await getAllGeneratedByUserId("123")
+  const userImagesGen = await getAllGeneratedByUserIdType("123", "generated")
   const userGenVideos = await getAllGeneratedByUserIdType(
     "123",
     "generatedVideo"
@@ -21,7 +21,7 @@ export default async function Studio() {
   return (
     <main className="container flex flex-col items-center py-8">
       <div className="flex flex-col items-center space-y-2 text-center">
-        <HeadingText subtext="Let your imagination run wild">
+        <HeadingText subtext="Let your imagination run wild" className="my-4">
           Studio
         </HeadingText>
         <ImageGen userImagesGen={userImagesGen} />

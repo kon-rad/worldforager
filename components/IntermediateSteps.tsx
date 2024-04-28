@@ -80,7 +80,7 @@ const IntermediateSteps = () => {
   }
   // Save images to local storage
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="my-8 flex w-full flex-col items-center">
       <Accordion type="multiple" collapsible className="w-full">
         <h1 className="text-2xl">Intermediate Steps</h1>
         <AccordionItem value="item-2">

@@ -20,7 +20,6 @@ const UserImage = ({ setPreviewSource }: any) => {
         className="h-full w-full object-cover"
       />
       <div className="absolute bottom-0 w-full bg-black bg-opacity-60 p-2 text-sm text-white">
-        {"user 1"}
         <button
           onClick={handleTakeScreenshot}
           className="ml-8 mt-1 rounded bg-gray-600 p-1 text-white"

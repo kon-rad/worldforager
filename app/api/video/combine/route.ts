@@ -1,69 +1,47 @@
-import type { NextApiRequest, NextApiResponse } from "next"
-import nextConnect from "next-connect"
-import multer from "multer"
-import ffmpeg from "fluent-ffmpeg"
+// import multer from "multer"
+// import ffmpeg from "fluent-ffmpeg"
+// import axios from "axios"
+// import { NextRequest, NextResponse } from "next/server"
 
-export default handler
-import axios from "axios"
-import { NextRequest, NextResponse } from "next/server"
-import { generateImage } from "./helper"
-import { generateVideoFromImage } from "@/lib/helpers/fal"
+// const upload = multer({ storage: multer.memoryStorage() })
 
-const upload = multer({ storage: multer.memoryStorage() })
+// async function downloadVideo(url: string) {
+//   const response = await axios.get(url, { responseType: "stream" })
+//   return response.data
+// }
+// export const POST = async (req: any): Promise<Response> => {
+//   try {
+//     const { videoUrls } = req.body
 
-export const POST = async (req: NextRequest): Promise<Response> => {
-  if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-    return res.status(400).json({ error: "No files uploaded" })
-  }
+//     if (!videoUrls || videoUrls.length === 0) {
+//       return NextResponse.json({ error: "missing videoUrls" }, { status: 500 })
+//     }
 
-  try {
-    const files = req.files as Express.Multer.File[]
+//     const command = ffmpeg()
 
-    // Process files with FFmpeg
-    const command = ffmpeg()
+//     // Download each video and add it to the FFmpeg command
+//     for (const url of videoUrls) {
+//       const videoStream = await downloadVideo(url)
+//       command.addInput(videoStream)
+//     }
 
-    // Add each video to the FFmpeg command
-    files.forEach((file, index) => {
-      const filename = `input${index}.mp4`
-      ffmpeg.FS("writeFile", filename, new Uint8Array(file.buffer))
-      command.input(filename)
-    })
-
-    // Set the output options and execute the command
-    command
-      .mergeToFile("output.mp4", "/tmp")
-      .on("error", function (err) {
-        console.log("Error:", err)
-        res.status(500).json({ error: "Failed to combine videos" })
-      })
-      .on("end", function () {
-        console.log("Finished processing")
-        res.status(200).sendFile("/tmp/output.mp4")
-      })
-  } catch (error) {
-    console.error("Processing error:", error)
-    res.status(500).json({ error: "Error processing videos" })
-  }
-  try {
-    console.log("inside /api/video /generate")
-
-    const { image_url } = await req.json()
-    // console.log("Received base64 video :", target, source);
-
-    if (image_url) {
-      console.log("calling gen video: ")
-
-      const resp = await generateVideoFromImage(image_url)
-      console.log("response: ", resp)
-
-      return new Response(JSON.stringify(resp))
-    } else {
-      return NextResponse.json(
-        { response: "you must provide source and target images " },
-        { status: 200 }
-      )
-    }
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
-  }
-}
+//     // Execute the command to combine videos
+//     command
+//       .mergeToFile("/tmp/output.mp4", "/tmp")
+//       .on("error", (err) => {
+//         console.error("FFmpeg error:", err)
+//         return NextResponse.json(
+//           { error: "missing videoUrls" },
+//           { status: 500 }
+//         )
+//       })
+//       .on("end", () => {
+//         console.log("Video processing completed")
+//         // res.status(200).sendFile("/tmp/output.mp4")
+//         return new Response(JSON.stringify("/tmp/output.mp4"))
+//       })
+//   } catch (error) {
+//     console.error("Error:", error)
+//     return NextResponse.json({ error: "missing videoUrls" }, { status: 500 })
+//   }
+// }

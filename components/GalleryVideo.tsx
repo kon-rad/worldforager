@@ -7,7 +7,7 @@ const Gallery = ({ userGenVideos }: any) => {
 
   return (
     <>
-      <h1 className="text-2xl">generated videos:</h1>
+      <h1 className="text-2xl my-4">generated videos:</h1>
       <div className="flex flex-wrap justify-center gap-4 p-4">
         {userGenVideos.map((video, index) => (
           <div key={index} className="overflow-hidden rounded-lg shadow-lg">
