@@ -78,6 +78,16 @@ const IntermediateSteps = () => {
       </div>
     )
   }
+  const renderImagePrompts = (imgPrompts: any) => {
+    return (imgPrompts || []).map((imgP: any, i: number) => {
+      return (
+        <div className="my-4 flex flex-col">
+          <div className="text-md my-2">prompt: {i + 1}</div>
+          <div className="text-sm text-gray-700">{imgP}</div>
+        </div>
+      )
+    })
+  }
   // Save images to local storage
   return (
     <div className="my-8 flex w-full flex-col items-center">
@@ -85,37 +95,49 @@ const IntermediateSteps = () => {
         <h1 className="text-2xl">Intermediate Steps</h1>
         <AccordionItem value="item-2">
           <AccordionTrigger>
-            {genScript && <FaCheckCircle className="mr-2 text-green-400" />}
-            Generated Script
+            {" "}
+            <div className="flex w-full flex-row">
+              {genScript && <FaCheckCircle className="mr-2 text-green-400" />}
+              Generated Script
+            </div>
           </AccordionTrigger>
           <AccordionContent>{genScript}</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3">
           <AccordionTrigger>
-            {genImagePrompts.length > 0 && (
-              <FaCheckCircle className="mr-2 text-green-400" />
-            )}
-            Generated Image Prompts
+            {" "}
+            <div className="flex w-full flex-row">
+              {genImagePrompts.length > 0 && (
+                <FaCheckCircle className="mr-2 text-green-400" />
+              )}
+              Generated Image Prompts
+            </div>
           </AccordionTrigger>
           <AccordionContent>
-            {(genImagePrompts || []).join("\n\n\n prompt: \n\n")}
+            {renderImagePrompts(genImagePrompts || [])}
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-4">
           <AccordionTrigger>
-            {genImages.length > 0 && (
-              <FaCheckCircle className="mr-2 text-green-400" />
-            )}
-            Generated Images
+            {" "}
+            <div className="flex w-full flex-row">
+              {genImages.length > 0 && (
+                <FaCheckCircle className="mr-2 text-green-400" />
+              )}
+              Generated Images
+            </div>
           </AccordionTrigger>
           <AccordionContent>{renderGenImages(genImages)}</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-5">
           <AccordionTrigger>
-            {genVideos.length > 0 && (
-              <FaCheckCircle className="mr-2 text-green-400" />
-            )}
-            Generated Videos
+            {" "}
+            <div className="flex w-full flex-row">
+              {genVideos.length > 0 && (
+                <FaCheckCircle className="mr-2 text-green-400" />
+              )}
+              Generated Videos
+            </div>
           </AccordionTrigger>
           <AccordionContent>{renderGenVideos(genVideos)}</AccordionContent>
         </AccordionItem>

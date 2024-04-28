@@ -22,7 +22,7 @@ export default async function Studio() {
     <main className="container flex flex-col items-center py-8">
       <div className="flex flex-col items-center space-y-2 text-center">
         <HeadingText subtext="Let your imagination run wild" className="my-4">
-          Studio
+          Short Film Studio
         </HeadingText>
         <ImageGen userImagesGen={userImagesGen} />
         <Gallery userImagesGen={userImagesGen} />

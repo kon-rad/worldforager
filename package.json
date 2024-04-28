@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@deepgram/sdk": "^3.3.0",
     "@fal-ai/serverless-client": "^0.9.3",
     "@google/generative-ai": "^0.8.0",
     "@hookform/resolvers": "^3.1.1",
@@ -29,6 +30,7 @@
     "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "dotenv": "^16.4.5",
     "download": "^8.0.0",
     "electron": "^30.0.1",
     "eslint": "8.45.0",

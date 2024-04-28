@@ -47,7 +47,24 @@ const ImageGen = ({ userImagesGen }: any) => {
     genVideos,
     setGenVideos,
   } = useGlobalState()
+  const [audioSrc, setAudioSrc] = useState("")
 
+  const fetchAudio = async (speakText: string) => {
+    const response = await fetch("/api/voice/fromtext", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ speakText: speakText }),
+    })
+    if (response.ok) {
+      const blob = await response.blob()
+      const audioUrl = URL.createObjectURL(blob)
+      setAudioSrc(audioUrl)
+    } else {
+      console.error("Failed to fetch audio")
+    }
+  }
   const saveImagesToS3FromBlob = async (
     images: any,
     saveType: string = "generated",
@@ -189,7 +206,8 @@ const ImageGen = ({ userImagesGen }: any) => {
   const handleGenFilm = async () => {
     // { generateScript, generateImagePrompts }
     const script = await generateScript(filmPlot)
-    const imagePrompts = await generateScript(script)
+    fetchAudio(script)
+    // const imagePrompts = await generateScript(script)
     setGenScript(script)
     // setGenImagePrompts(imagePrompts)
     const imageDesc = await genImageStory(script, characterDesc)
@@ -206,7 +224,6 @@ const ImageGen = ({ userImagesGen }: any) => {
 
     // await generateImagesForPrompts([image1, image2, image3, image4, image5])
 
-    console.log("previewSource ", previewSource)
     const videoUrls = []
 
     const image1Res = await generateImage(image1, 1, previewSource)
@@ -315,7 +332,9 @@ const ImageGen = ({ userImagesGen }: any) => {
       </Button>
       <h2 className="mb-6 mt-12 text-xl">2. Take a selfie</h2>
       <UserImage setPreviewSource={setPreviewSource} />
-      <h2 className="mb-6 mt-12 text-xl">3. Describe the plot of the film</h2>
+      <h2 className="mb-6 mt-12 text-xl">
+        3. Describe the plot of the short film
+      </h2>
       <Textarea
         value={filmPlot}
         onChange={(e) => setFilmPlot(e.target.value)}
@@ -328,6 +347,12 @@ const ImageGen = ({ userImagesGen }: any) => {
       <Button onClick={handlePost} className="my-2">
         post to Instagram
       </Button>
+      {audioSrc && (
+        <div className="my-6 flex flex-col justify-center">
+          <h2 className="my-4 text-xl">Short Film Audio</h2>
+          <audio controls src={audioSrc} />
+        </div>
+      )}
       <IntermediateSteps />
       <GeneratedImages userImagesGen={userImagesGen} />
     </div>
