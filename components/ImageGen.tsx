@@ -16,10 +16,12 @@ import {
   generateImagePrompts,
   genImageStory,
   genImagePrompt,
+  generateScriptForAudio,
 } from "@/lib/helpers/gemini"
 import { generateImage } from "@/lib/helpers/togetherai"
 import GeneratedImages from "./GeneratedImages"
 import { generateVideoFromImage } from "@/lib/helpers/fal"
+import CombineVideos from "@/components/CombineVideos"
 
 const userId = "123"
 
@@ -57,10 +59,11 @@ const ImageGen = ({ userImagesGen }: any) => {
       },
       body: JSON.stringify({ speakText: speakText }),
     })
+    console.log("audio url response ", response)
+
     if (response.ok) {
-      const blob = await response.blob()
-      const audioUrl = URL.createObjectURL(blob)
-      setAudioSrc(audioUrl)
+      const data = await response.json()
+      setAudioSrc(data)
     } else {
       console.error("Failed to fetch audio")
     }
@@ -206,7 +209,8 @@ const ImageGen = ({ userImagesGen }: any) => {
   const handleGenFilm = async () => {
     // { generateScript, generateImagePrompts }
     const script = await generateScript(filmPlot)
-    fetchAudio(script)
+    const scriptForAudio = await generateScriptForAudio(script)
+    fetchAudio(scriptForAudio)
     // const imagePrompts = await generateScript(script)
     setGenScript(script)
     // setGenImagePrompts(imagePrompts)

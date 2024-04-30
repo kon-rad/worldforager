@@ -4,7 +4,7 @@ const generateVideoFromImage = async (imageUrl: any) => {
   try {
     console.log("calling fal image to video: ", imageUrl)
 
-    const modelType: string = "animatediff-v2v"
+    const modelType: string = "fal-ai/fast-svd"
     let result = ""
     if (modelType === "fast-svd-lcm") {
       result = await fal.subscribe("fal-ai/fast-svd-lcm", {
@@ -28,23 +28,23 @@ const generateVideoFromImage = async (imageUrl: any) => {
             "masterpiece, best quality, rocket in space, galaxies in the background",
         },
         logs: true,
-        onQueueUpdate: (update) => {
-          if (update.status === "IN_PROGRESS") {
-            update.logs.map((log) => log.message).forEach(console.log)
-          }
-        },
+        // onQueueUpdate: (update) => {
+        //   if (update.status === "IN_PROGRESS") {
+        //     update.logs.map((log) => log.message).forEach(console.log)
+        //   }
+        // },
       })
-    } else if (modelType === "") {
+    } else if (modelType === "fal-ai/fast-svd") {
       result = await fal.subscribe("fal-ai/fast-svd", {
         input: {
           image_url: imageUrl,
         },
         logs: true,
-        onQueueUpdate: (update) => {
-          if (update.status === "IN_PROGRESS") {
-            update.logs.map((log) => log.message).forEach(console.log)
-          }
-        },
+        // onQueueUpdate: (update) => {
+        //   if (update.status === "IN_PROGRESS") {
+        //     update.logs.map((log) => log.message).forEach(console.log)
+        //   }
+        // },
       })
     }
     console.log("result", result)

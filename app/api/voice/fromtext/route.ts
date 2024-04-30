@@ -1,37 +1,47 @@
 // const { createClient } = require("@deepgram/sdk")
 import { createClient } from "@deepgram/sdk"
 // const fs = require("fs")
-import { NextRequest, NextResponse } from "next/server"
-import * as AWS from "aws-sdk"
 import { createGenerated } from "@/lib/database/generated"
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+import { Upload } from "@aws-sdk/lib-storage"
+import { NextRequest, NextResponse } from "next/server"
 
 export const maxDuration = 30 // This function can run for a maximum of 60 seconds
 
 // Configure AWS SDK
-AWS.config.update({
-  accessKeyId: process.env.S3_UPLOAD_KEY,
-  secretAccessKey: process.env.S3_UPLOAD_SECRET,
-  region: process.env.S3_UPLOAD_REGION,
-})
+// accessKeyId: process.env.S3_UPLOAD_KEY,
+// secretAccessKey: process.env.S3_UPLOAD_SECRET,
+// region: process.env.S3_UPLOAD_REGION,
 
-const s3 = new AWS.S3()
+//   Bucket: process.env.S3_UPLOAD_BUCKET,
+
+const s3Client = new S3Client({
+  region: process.env.S3_UPLOAD_REGION,
+  credentials: {
+    accessKeyId: process.env.S3_UPLOAD_KEY,
+    secretAccessKey: process.env.S3_UPLOAD_SECRET,
+  },
+})
 
 async function saveStreamToS3(
   stream: NodeJS.ReadableStream,
   fileName: string
 ): Promise<string> {
-  const params = {
-    Bucket: process.env.S3_UPLOAD_BUCKET,
-    Key: fileName,
-    Body: stream,
-    ContentType: "audio/wav",
-  }
+  const upload = new Upload({
+    client: s3Client,
+    params: {
+      Bucket: process.env.S3_UPLOAD_BUCKET,
+      Key: fileName,
+      Body: stream,
+      ContentType: "audio/wav",
+    },
+  })
 
   try {
-    await s3.upload(params).promise()
-    return `https://${process.env.S3_UPLOAD_BUCKET}.s3.amazonaws.com/${fileName}`
+    await upload.done()
+    return `https://${process.env.S3_UPLOAD_BUCKET}.s3.${process.env.S3_UPLOAD_REGION}.amazonaws.com/${fileName}`
   } catch (error) {
-    console.error("Error saving to S3:", error)
+    console.error("Error saving to S3 with AWS SDK v3:", error)
     throw error
   }
 }
@@ -96,9 +106,7 @@ export const POST = async (req: NextRequest): Promise<Response> => {
       })
       console.log("saved db resp ", resp)
 
-      return new Response(JSON.stringify({ url: fileUrl }), {
-        headers: { "Content-Type": "application/json" },
-      })
+      return new Response(JSON.stringify(fileUrl))
     } else {
       console.error("Error generating audio:", stream)
       return new Response(JSON.stringify({ error: "Error generating audio" }), {

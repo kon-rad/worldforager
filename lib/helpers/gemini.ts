@@ -22,6 +22,26 @@ const generateScript = async (plotDesc: string) => {
 
   return text
 }
+const generateScriptForAudio = async (scriptText: string) => {
+  // For text-only input, use the gemini-pro model
+  const model = genAI.getGenerativeModel({
+    model: "gemini-pro",
+  })
+
+  const prompt = `Take this script and extract only the text for the voice actor narrator to read. DO NOT include any text 
+  other the lines being spoken. The voice actor narrator will read all the text returned.
+  ${scriptText}
+  `
+
+  const result = await model.generateContent(prompt)
+  const response = await result.response
+  const text = response.text()
+  console.log("text ", text)
+
+  console.log(text)
+
+  return text
+}
 
 const genImageStory = async (imageStory: string, characterDesc: string) => {
   // For text-only input, use the gemini-pro model
@@ -121,4 +141,10 @@ const genImagePrompt = async (
   return text
 }
 
-export { generateScript, generateImagePrompts, genImageStory, genImagePrompt }
+export {
+  generateScript,
+  generateImagePrompts,
+  genImageStory,
+  genImagePrompt,
+  generateScriptForAudio,
+}
