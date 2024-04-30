@@ -21,10 +21,23 @@ const generateVideoFromImage = async (imageUrl: any) => {
     } else if (modelType === "animatediff-v2v") {
       result = await fal.subscribe("fal-ai/animatediff-v2v", {
         input: {
-          video_url:
-            "https://storage.googleapis.com/falserverless/model_tests/animatediff_v2v/rocket.mp4",
+          image_url: imageUrl,
+          // video_url:
+          //   "https://storage.googleapis.com/falserverless/model_tests/animatediff_v2v/rocket.mp4",
           prompt:
             "masterpiece, best quality, rocket in space, galaxies in the background",
+        },
+        logs: true,
+        onQueueUpdate: (update) => {
+          if (update.status === "IN_PROGRESS") {
+            update.logs.map((log) => log.message).forEach(console.log)
+          }
+        },
+      })
+    } else if (modelType === "") {
+      result = await fal.subscribe("fal-ai/fast-svd", {
+        input: {
+          image_url: imageUrl,
         },
         logs: true,
         onQueueUpdate: (update) => {

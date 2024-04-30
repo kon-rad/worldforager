@@ -2,28 +2,59 @@
 import { createClient } from "@deepgram/sdk"
 // const fs = require("fs")
 import { NextRequest, NextResponse } from "next/server"
+import * as AWS from "aws-sdk"
+import { createGenerated } from "@/lib/database/generated"
 
-export const maxDuration = 60 // This function can run for a maximum of 60 seconds
+export const maxDuration = 30 // This function can run for a maximum of 60 seconds
 
-// helper function to convert stream to audio buffer
-const getAudioBuffer = async (response) => {
-  const reader = response.getReader()
-  const chunks = []
+// Configure AWS SDK
+AWS.config.update({
+  accessKeyId: process.env.S3_UPLOAD_KEY,
+  secretAccessKey: process.env.S3_UPLOAD_SECRET,
+  region: process.env.S3_UPLOAD_REGION,
+})
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
+const s3 = new AWS.S3()
 
-    chunks.push(value)
+async function saveStreamToS3(
+  stream: NodeJS.ReadableStream,
+  fileName: string
+): Promise<string> {
+  const params = {
+    Bucket: process.env.S3_UPLOAD_BUCKET,
+    Key: fileName,
+    Body: stream,
+    ContentType: "audio/wav",
   }
 
-  const dataArray = chunks.reduce(
-    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
-    new Uint8Array(0)
-  )
-
-  return Buffer.from(dataArray.buffer)
+  try {
+    await s3.upload(params).promise()
+    return `https://${process.env.S3_UPLOAD_BUCKET}.s3.amazonaws.com/${fileName}`
+  } catch (error) {
+    console.error("Error saving to S3:", error)
+    throw error
+  }
 }
+
+// helper function to convert stream to audio buffer
+// const getAudioBuffer = async (response) => {
+//   const reader = response.getReader()
+//   const chunks = []
+
+//   while (true) {
+//     const { done, value } = await reader.read()
+//     if (done) break
+
+//     chunks.push(value)
+//   }
+
+//   const dataArray = chunks.reduce(
+//     (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
+//     new Uint8Array(0)
+//   )
+
+//   return Buffer.from(dataArray.buffer)
+// }
 
 export const POST = async (req: NextRequest): Promise<Response> => {
   try {
@@ -49,23 +80,24 @@ export const POST = async (req: NextRequest): Promise<Response> => {
     )
     console.log("post response")
 
-    // STEP 3: Get the audio stream and headers from the response
     const stream = await response.getStream()
-    console.log("post stream")
-    // const headers = await response.getHeaders()
     if (stream) {
-      console.log("inside stream")
+      const fileName = `audio-${Date.now()}.wav`
+      const fileUrl = await saveStreamToS3(stream, fileName)
+      // save to db
 
-      // Convert the stream to an audio buffer
-      const buffer = await getAudioBuffer(stream)
+      console.log("fileUrl: audio ", fileUrl)
+      const resp = await createGenerated({
+        userId: "123",
+        type: "scriptaudio",
+        url: fileUrl,
+        prompt: speakText,
+        studioId: "4242",
+      })
+      console.log("saved db resp ", resp)
 
-      console.log("post buffer")
-
-      // Return the audio buffer as a response
-      return new Response(buffer, {
-        headers: {
-          "Content-Type": "audio/wav",
-        },
+      return new Response(JSON.stringify({ url: fileUrl }), {
+        headers: { "Content-Type": "application/json" },
       })
     } else {
       console.error("Error generating audio:", stream)
