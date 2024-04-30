@@ -1,6 +1,6 @@
 // const { createClient } = require("@deepgram/sdk")
 import { createClient } from "@deepgram/sdk"
-const fs = require("fs")
+// const fs = require("fs")
 import { NextRequest, NextResponse } from "next/server"
 
 // helper function to convert stream to audio buffer

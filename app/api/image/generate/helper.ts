@@ -53,14 +53,14 @@ export const generateImage = async (
   console.log("Faceswap run complete swappedUrl ", swappedUrl)
   console.log("Faceswap run complete")
 
-  const swappedFilename = `${username}.png`
-  const dlDir = "./public/generated"
-  console.log("dl: ", swappedFilename, dlDir)
+  // const swappedFilename = `${username}.png`
+  // const dlDir = "./public/generated"
+  // console.log("dl: ", swappedFilename, dlDir)
   console.log("swappedUrl ", swappedUrl)
 
-  await download(swappedUrl, dlDir, { filename: swappedFilename })
+  // await download(swappedUrl, dlDir, { filename: swappedFilename })
 
   console.log("swappedUrl: ", swappedUrl)
-  console.log(`File ${swappedFilename} downloaded`)
+  // console.log(`File ${swappedFilename} downloaded`)
   return swappedUrl
 }
