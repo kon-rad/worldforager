@@ -52,12 +52,14 @@ export const POST = async (req: NextRequest): Promise<Response> => {
     // STEP 3: Get the audio stream and headers from the response
     const stream = await response.getStream()
     console.log("post stream")
-    const headers = await response.getHeaders()
+    // const headers = await response.getHeaders()
     if (stream) {
       console.log("inside stream")
 
       // Convert the stream to an audio buffer
       const buffer = await getAudioBuffer(stream)
+
+      console.log("post buffer")
 
       // Return the audio buffer as a response
       return new Response(buffer, {
