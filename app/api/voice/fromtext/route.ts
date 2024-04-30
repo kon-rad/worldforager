@@ -3,6 +3,8 @@ import { createClient } from "@deepgram/sdk"
 // const fs = require("fs")
 import { NextRequest, NextResponse } from "next/server"
 
+export const maxDuration = 60 // This function can run for a maximum of 60 seconds
+
 // helper function to convert stream to audio buffer
 const getAudioBuffer = async (response) => {
   const reader = response.getReader()
