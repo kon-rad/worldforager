@@ -1,6 +1,6 @@
-const { createClient } = require("@deepgram/sdk")
+// const { createClient } = require("@deepgram/sdk")
+import { createClient } from "@deepgram/sdk"
 const fs = require("fs")
-import axios from "axios"
 import { NextRequest, NextResponse } from "next/server"
 
 // helper function to convert stream to audio buffer
@@ -31,6 +31,7 @@ export const POST = async (req: NextRequest): Promise<Response> => {
 
     // STEP 1: Create a Deepgram client with your API key
     const deepgram = createClient(process.env.DEEPGRAM_API_KEY)
+    console.log("post deepgram createClient")
 
     // STEP 2: Make a request and configure the request with options (such as model choice, audio configuration, etc.)
     const response = await deepgram.speak.request(
@@ -41,10 +42,15 @@ export const POST = async (req: NextRequest): Promise<Response> => {
         container: "wav",
       }
     )
+    console.log("post response")
+
     // STEP 3: Get the audio stream and headers from the response
     const stream = await response.getStream()
+    console.log("post stream")
     const headers = await response.getHeaders()
     if (stream) {
+      console.log("inside stream")
+
       // Convert the stream to an audio buffer
       const buffer = await getAudioBuffer(stream)
 
