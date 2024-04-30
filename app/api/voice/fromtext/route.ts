@@ -25,7 +25,10 @@ const getAudioBuffer = async (response) => {
 
 export const POST = async (req: NextRequest): Promise<Response> => {
   try {
-    console.log("inside /api/voice")
+    console.log(
+      "inside /api/voice process.env.DEEPGRAM_API_KEY ->",
+      process.env.DEEPGRAM_API_KEY
+    )
 
     const { speakText } = await req.json()
 
