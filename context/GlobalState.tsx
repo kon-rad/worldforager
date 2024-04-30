@@ -7,8 +7,12 @@ const GlobalStateContext = createContext<any | undefined>(undefined)
 export const GlobalStateProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [characterDesc, setCharacterDesc] = useState("")
-  const [filmPlot, setFilmPlot] = useState("")
+  const [characterDesc, setCharacterDesc] = useState(
+    "Konrad is a mid thirties, fit guy, he is very muscular, suave, tall, handsome, he is a billionaire CEO, and an excellent coder"
+  )
+  const [filmPlot, setFilmPlot] = useState(
+    "Konrad wins an award for the fastest growing AI startup in world history"
+  )
   const [previewUrl, setPreviewUrl] = useState("")
   const [genScript, setGenScript] = useState("")
   const [genImagePrompts, setGenImagePrompts] = useState([])
