@@ -6,6 +6,7 @@ import Footer from "@/components/layout/footer"
 import { ThemeProvider } from "@/components/theme-provider"
 import { settings } from "@/config/settings"
 import Providers from "./providers"
+import Sidebar from "@/components/layout/sidebar"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -73,13 +74,24 @@ export default function RootLayout({ children }: RootLayoutProps) {
           {settings.themeToggleEnabled ? (
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <Navbar />
-              {children}
+              <div className="flex h-screen border-collapse overflow-hidden">
+                <Sidebar />
+                <main className="flex-1 overflow-y-auto overflow-x-hidden bg-secondary/10 pb-1 pt-16">
+                  {children}
+                </main>
+              </div>
               <Footer />
             </ThemeProvider>
           ) : (
             <ThemeProvider attribute="class" forcedTheme="light" enableSystem>
               <Navbar />
-              {children}
+
+              <div className="flex h-screen border-collapse overflow-hidden">
+                <Sidebar />
+                <main className="flex-1 overflow-y-auto overflow-x-hidden bg-secondary/10 pb-1 pt-16">
+                  {children}
+                </main>
+              </div>
               <Footer />
             </ThemeProvider>
           )}

@@ -4,7 +4,7 @@ import prisma from "@/lib/db"
 // Assuming prisma is an instance of PrismaClient
 
 async function fetchPromptByGenId(genId: string) {
-  const prompt = await prisma.prompt.findUnique({
+  const prompt = await prisma.wF_Prompt.findUnique({
     where: {
       genId,
     },
@@ -12,7 +12,7 @@ async function fetchPromptByGenId(genId: string) {
   return prompt
 }
 async function fetchPromptsByUserId(userId: string) {
-  const prompts = await prisma.prompt.findMany({
+  const prompts = await prisma.wF_Prompt.findMany({
     where: {
       userId,
     },
@@ -20,7 +20,7 @@ async function fetchPromptsByUserId(userId: string) {
   return prompts
 }
 async function createPrompt(content: string, userId: string, genId: string) {
-  const newPrompt = await prisma.prompt.create({
+  const newPrompt = await prisma.wF_Prompt.create({
     data: {
       content,
       userId,
@@ -30,8 +30,4 @@ async function createPrompt(content: string, userId: string, genId: string) {
   return newPrompt
 }
 
-export {
-  fetchPromptByGenId,
-  fetchPromptsByUserId,
-  createPrompt
-}
+export { fetchPromptByGenId, fetchPromptsByUserId, createPrompt }
