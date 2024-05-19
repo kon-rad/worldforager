@@ -25,7 +25,7 @@ import CombineVideos from "@/components/CombineVideos"
 
 const userId = "123"
 
-const ImageGen = ({ userImagesGen }: any) => {
+const ImageGen = ({ userImagesGen, userGenVideos }: any) => {
   const [imagesResults, setImagesResults] = useState([])
   const [faceSwappedImage, setFaceSwappedImage] = useState()
   const [prompt, setPrompt] = useState("")
@@ -323,7 +323,7 @@ const ImageGen = ({ userImagesGen }: any) => {
 
   // Save images to local storage
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="flex w-full flex-col">
       <h1 className="mb-6  mt-12 text-xl">1. Describe your character</h1>
       <Textarea
         value={characterDesc}
@@ -331,9 +331,11 @@ const ImageGen = ({ userImagesGen }: any) => {
         className="my-4 h-[200px] w-full max-w-[700px]"
         placeholder="Describe your character"
       />
-      <Button onClick={saveCharacter} className="my-2">
-        save character
-      </Button>
+      <div>
+        <Button onClick={saveCharacter} className="my-2">
+          save character
+        </Button>
+      </div>
       <h2 className="mb-6 mt-12 text-xl">2. Take a selfie</h2>
       <UserImage setPreviewSource={setPreviewSource} />
       <h2 className="mb-6 mt-12 text-xl">
@@ -345,19 +347,23 @@ const ImageGen = ({ userImagesGen }: any) => {
         className="my-4  mb-12 h-[300px] w-full max-w-[700px]"
         placeholder="Describe the film plot"
       />
-      <Button onClick={handleGenFilm} className="my-2">
-        generate film
-      </Button>
-      <Button onClick={handlePost} className="my-2">
-        post to Instagram
-      </Button>
+      <div>
+        <Button onClick={handleGenFilm} className="my-2">
+          generate film
+        </Button>
+      </div>
+      <div>
+        <Button onClick={handlePost} className="my-2">
+          post to Instagram
+        </Button>
+      </div>
       {audioSrc && (
         <div className="my-6 flex flex-col justify-center">
           <h2 className="my-4 text-xl">Short Film Audio</h2>
           <audio controls src={audioSrc} />
         </div>
       )}
-      <IntermediateSteps />
+      <IntermediateSteps userGenVideos={userGenVideos} />
       <GeneratedImages userImagesGen={userImagesGen} />
     </div>
   )

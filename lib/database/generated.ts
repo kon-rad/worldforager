@@ -52,6 +52,15 @@ async function getAllGeneratedByUserIdType(userId: string, type: string) {
   })
 }
 
+async function getStudiosByUserId(userId: string) {
+  const studios = await prisma.wF_StudioId.findMany({
+    where: {
+      userId: userId,
+    },
+  })
+  return studios
+}
+
 export {
   getAllGenerated,
   getAllGeneratedByUserId,
@@ -59,4 +68,5 @@ export {
   createGenerated,
   deleteGenerated,
   getAllGeneratedByUserIdType,
+  getStudiosByUserId,
 }
