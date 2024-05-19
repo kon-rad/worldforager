@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import axios from "axios"
 import UserImage from "./UserImage"
 import SwappedImagesDisplay from "./SwappedImagesDisplay"
@@ -19,6 +20,10 @@ import {
   generateScriptForAudio,
 } from "@/lib/helpers/gemini"
 import { generateImage } from "@/lib/helpers/togetherai"
+import {
+  generateScriptForAudioLlama,
+  genImagePromptWLlama,
+} from "@/lib/helpers/llama"
 import GeneratedImages from "./GeneratedImages"
 import { generateVideoFromImage } from "@/lib/helpers/fal"
 import CombineVideos from "@/components/CombineVideos"
@@ -34,6 +39,7 @@ const ImageGen = ({ userImagesGen, userGenVideos }: any) => {
   const [selectedImage, setSelectedImage] = useState(null) // New state for storing selected image
   const [previewSource, setPreviewSource] = useState("")
   const { uploadToS3, files } = useS3Upload()
+  const [scenesNum, setScenesNum] = useState(5)
   const { toast } = useToast()
   const {
     characterDesc,
@@ -210,20 +216,32 @@ const ImageGen = ({ userImagesGen, userGenVideos }: any) => {
   const handleGenFilm = async () => {
     // { generateScript, generateImagePrompts }
     const script = await generateScript(filmPlot)
+    // const script = await generateScriptForAudioLlama(filmPlot)
     const scriptForAudio = await generateScriptForAudio(script)
     fetchAudio(scriptForAudio)
     // const imagePrompts = await generateScript(script)
     setGenScript(script)
     // setGenImagePrompts(imagePrompts)
-    const imageDesc = await genImageStory(script, characterDesc)
+    const imageDesc = await genImageStory(script, characterDesc, scenesNum + "")
     console.log("imageDesc - ", imageDesc)
     console.log("handleGenFilm")
 
     const imagePrompts = await Promise.all(
-      Array.from({ length: 10 }, (_, i) =>
+      Array.from({ length: scenesNum }, (_, i) =>
         genImagePrompt(imageDesc, (i + 1).toString(), characterDesc)
       )
     )
+
+    // const imagePrompts = await Promise.all(
+    //   Array.from({ length: scenesNum }, async (_, i) => {
+    //     // await new Promise((resolve) => setTimeout(resolve, 3000))
+    //     return genImagePromptWLlama(
+    //       imageDesc,
+    //       (i + 1).toString(),
+    //       characterDesc
+    //     )
+    //   })
+    // )
     setGenImagePrompts(imagePrompts)
 
     // Assuming imagePrompts is the array of prompts generated in the previous step
@@ -258,12 +276,14 @@ const ImageGen = ({ userImagesGen, userGenVideos }: any) => {
   // Save images to local storage
   return (
     <div className="flex w-full flex-col">
-      <h1 className="mb-6  mt-12 text-xl">1. Describe your character</h1>
+      <h1 className="mb-6  mt-12 text-xl">
+        1. Describe physical appearance of your main character
+      </h1>
       <Textarea
         value={characterDesc}
         onChange={(e) => setCharacterDesc(e.target.value)}
         className="my-4 h-[200px] w-full max-w-[700px]"
-        placeholder="Describe your character"
+        placeholder="Describe physical appearance of your main character"
       />
       <div>
         <Button onClick={saveCharacter} className="my-2">
@@ -281,6 +301,12 @@ const ImageGen = ({ userImagesGen, userGenVideos }: any) => {
         className="my-4  mb-12 h-[300px] w-full max-w-[700px]"
         placeholder="Describe the film plot"
       />
+      <h2 className="mb-6 mt-6 text-xl">Number of Scenes</h2>
+      <Input
+        className="my-4 w-[200px] "
+        value={scenesNum}
+        onChange={(e: any) => setScenesNum(e.target.value)}
+      />
       <div>
         <Button onClick={handleGenFilm} className="my-2">
           generate film
@@ -297,7 +323,7 @@ const ImageGen = ({ userImagesGen, userGenVideos }: any) => {
           <audio controls src={audioSrc} />
         </div>
       )}
-      <IntermediateSteps userGenVideos={userGenVideos} />
+      <IntermediateSteps userGenVideos={userGenVideos} audioSrc={audioSrc} />
       <GeneratedImages userImagesGen={userImagesGen} />
     </div>
   )

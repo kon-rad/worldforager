@@ -8,6 +8,7 @@ cloudinary.config({
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 })
+const audionarration = "audionarration"
 const uploadedfinal = ["clwcd73qb000aixvxr5tr7qkv", "clwcd6qn60008ixvxt99h9ghf"]
 
 async function downloadVideo(url: string) {
@@ -17,7 +18,7 @@ async function downloadVideo(url: string) {
 export const POST = async (req: any): Promise<Response> => {
   try {
     // const { videoUrls } = req.body
-    const { videoUrls } = await req.json()
+    const { videoUrls, audioSrc } = await req.json()
 
     if (!videoUrls || videoUrls.length === 0) {
       return NextResponse.json({ error: "missing videoUrls" }, { status: 500 })
@@ -35,6 +36,17 @@ export const POST = async (req: any): Promise<Response> => {
         uploadedVideos.push(result.public_id)
       }
     }
+    if (audioSrc) {
+      const result = await cloudinary.uploader.upload(audioSrc, {
+        resource_type: "video", // Ensure the resource type is set to video
+        public_id: audionarration,
+      })
+      console.log(
+        `Uploaded audioSrc with public ID: ${result.public_id}`,
+        audioSrc
+      )
+      uploadedVideos.push(result.public_id)
+    }
 
     // You can combine videos here using Cloudinary's video transformation features
     // Refer to Cloudinary documentation for combining videos: https://cloudinary.com/documentation/video_manipulation_and_delivery#concatenate_videos
@@ -44,6 +56,11 @@ export const POST = async (req: any): Promise<Response> => {
     if (uploadedVideos.length >= 2) {
       const transformations = []
 
+      // transformations.push(
+      //   { audio_codec: "none" },
+      //   { overlay: `audio:${audionarration}` },
+      //   { flags: "layer_apply" }
+      // )
       for (let i = 0; i < uploadedVideos.length; i++) {
         transformations.push(
           { height: 512, width: 512, crop: "fill" },
@@ -51,9 +68,15 @@ export const POST = async (req: any): Promise<Response> => {
         )
       }
 
-      transformations.push({ height: 512, width: 512, crop: "fill" })
+      transformations.push({ height: 512, width: 512, crop: "" })
       transformations.push({ flags: "layer_apply" })
 
+      // Apply the audio overlay after all video overlays
+      transformations.push(
+        { audio_codec: "none" },
+        { overlay: `audio:${audionarration}` },
+        { flags: "layer_apply" }
+      )
       const combinedVideo = cloudinary.video(uploadedVideos[0], {
         transformation: transformations,
       })

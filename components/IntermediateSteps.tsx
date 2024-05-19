@@ -21,7 +21,7 @@ import { FaTimesCircle } from "react-icons/fa" // Import the X icon
 
 const userId = "123"
 
-const IntermediateSteps = ({ userGenVideos }: any) => {
+const IntermediateSteps = ({ userGenVideos, audioSrc }: any) => {
   const [imagesResults, setImagesResults] = useState([])
   const [faceSwappedImage, setFaceSwappedImage] = useState()
   const [prompt, setPrompt] = useState("")
@@ -107,6 +107,7 @@ const IntermediateSteps = ({ userGenVideos }: any) => {
     try {
       const response = await axios.post("/api/video/combine", {
         videoUrls: videoUrls,
+        audioSrc: audioSrc,
       })
       console.log(response.data)
       const updatedVideoElement = response?.data?.combinedVideo?.replace(
@@ -197,7 +198,7 @@ const IntermediateSteps = ({ userGenVideos }: any) => {
             <h3>select videos to combine:</h3>
             <h3 className="my-2 text-xl">Selected Videos to Combine:</h3>
             <div className="flex w-full flex-row flex-wrap">
-              {genVideos.map((video: any, index) => (
+              {selectedVideos.map((video: any, index) => (
                 <div
                   className="relative" // Add relative to position the X icon
                   key={index}
@@ -229,7 +230,7 @@ const IntermediateSteps = ({ userGenVideos }: any) => {
 
             <h3 className="my-2 text-xl">Video Gallery:</h3>
             <div className="flex w-full flex-row flex-wrap">
-              {userGenVideos.map((video: any, index) => (
+              {[...genVideos, ...userGenVideos].map((video: any, index) => (
                 <div
                   className=""
                   key={index}
