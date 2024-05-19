@@ -119,6 +119,7 @@ model User {
   UserBadges        UserBadges[]
   DocumentVectorIds DocumentVectorIds[]
   TelegramUser      TelegramUser[]
+  WF_StudioId       WF_StudioId[]
 
   @@map(name: "users")
 }
@@ -460,4 +461,16 @@ model WF_Generated {
   studioId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model WF_StudioId {
+  id        String   @id @default(cuid())
+  prompt    String?  @db.Text
+  model     String?
+  studioId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 }

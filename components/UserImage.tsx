@@ -12,12 +12,12 @@ const UserImage = ({ setPreviewSource }: any) => {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-gray-700">
+    <div className="relative max-w-[500px] overflow-hidden rounded-lg bg-gray-700 ">
       <Webcam
         audio={false}
         ref={webcamRef}
         screenshotFormat="image/png" // Set format to PNG
-        className="h-full w-full object-cover"
+        className="h-full w-full max-w-[500px] object-cover "
       />
       <div className="absolute bottom-0 w-full bg-black bg-opacity-60 p-2 text-sm text-white">
         <button

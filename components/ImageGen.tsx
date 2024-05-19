@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import axios from "axios"
 import UserImage from "./UserImage"
 import SwappedImagesDisplay from "./SwappedImagesDisplay"
@@ -19,13 +20,17 @@ import {
   generateScriptForAudio,
 } from "@/lib/helpers/gemini"
 import { generateImage } from "@/lib/helpers/togetherai"
+import {
+  generateScriptForAudioLlama,
+  genImagePromptWLlama,
+} from "@/lib/helpers/llama"
 import GeneratedImages from "./GeneratedImages"
 import { generateVideoFromImage } from "@/lib/helpers/fal"
 import CombineVideos from "@/components/CombineVideos"
 
 const userId = "123"
 
-const ImageGen = ({ userImagesGen }: any) => {
+const ImageGen = ({ userImagesGen, userGenVideos }: any) => {
   const [imagesResults, setImagesResults] = useState([])
   const [faceSwappedImage, setFaceSwappedImage] = useState()
   const [prompt, setPrompt] = useState("")
@@ -34,6 +39,7 @@ const ImageGen = ({ userImagesGen }: any) => {
   const [selectedImage, setSelectedImage] = useState(null) // New state for storing selected image
   const [previewSource, setPreviewSource] = useState("")
   const { uploadToS3, files } = useS3Upload()
+  const [scenesNum, setScenesNum] = useState(5)
   const { toast } = useToast()
   const {
     characterDesc,
@@ -108,12 +114,13 @@ const ImageGen = ({ userImagesGen }: any) => {
     console.log("saved url from s3 ", url)
 
     if (saveType === "generated") {
-      await createGenerated({
+      const saveResp = await createGenerated({
         url: url,
         userId: userId,
         prompt: prompt,
         type: saveType,
       })
+      console.log("save gen ", saveResp)
     }
     toast({
       title: "Successfully saved image!",
@@ -209,108 +216,53 @@ const ImageGen = ({ userImagesGen }: any) => {
   const handleGenFilm = async () => {
     // { generateScript, generateImagePrompts }
     const script = await generateScript(filmPlot)
+    // const script = await generateScriptForAudioLlama(filmPlot)
     const scriptForAudio = await generateScriptForAudio(script)
     fetchAudio(scriptForAudio)
     // const imagePrompts = await generateScript(script)
     setGenScript(script)
     // setGenImagePrompts(imagePrompts)
-    const imageDesc = await genImageStory(script, characterDesc)
+    const imageDesc = await genImageStory(script, characterDesc, scenesNum + "")
     console.log("imageDesc - ", imageDesc)
     console.log("handleGenFilm")
 
-    const image1 = await genImagePrompt(imageDesc, "1", characterDesc)
-    const image2 = await genImagePrompt(imageDesc, "2", characterDesc)
-    const image3 = await genImagePrompt(imageDesc, "3", characterDesc)
-    const image4 = await genImagePrompt(imageDesc, "4", characterDesc)
-    const image5 = await genImagePrompt(imageDesc, "5", characterDesc)
-    setGenImagePrompts([image1, image2, image3, image4, image5])
-    console.log("images: ", image1, image2, image3, image4, image5)
-
-    // await generateImagesForPrompts([image1, image2, image3, image4, image5])
-
-    const videoUrls = []
-
-    const image1Res = await generateImage(image1, 1, previewSource)
-    console.log("image1Res", image1Res)
-    saveImagesToS3FromURL(image1Res, "generated", imageDesc, 1)
-    const video1 = await axios.post("/api/video/generate", {
-      image_url: image1Res[0],
-    })
-    setGenImages((prev: any) => [...prev, image1Res])
-    console.log("video1 ", video1)
-    saveVideoToS3FromURL(
-      video1?.data?.video?.url,
-      "generatedVideo",
-      imageDesc,
-      1
+    const imagePrompts = await Promise.all(
+      Array.from({ length: scenesNum }, (_, i) =>
+        genImagePrompt(imageDesc, (i + 1).toString(), characterDesc)
+      )
     )
-    setGenVideos((prev: any) => [...prev, video1?.data?.video?.url])
 
-    const image2Res = await generateImage(image2, 1, previewSource)
-    console.log("image2Res", image2Res)
-    saveImagesToS3FromURL(image2Res, "generated", imageDesc, 1)
-    const video2 = await axios.post("/api/video/generate", {
-      image_url: image2Res[0],
-    })
-    setGenImages((prev: any) => [...prev, image2Res])
-    console.log("video2 ", video2)
-    saveVideoToS3FromURL(
-      video2?.data?.video?.url,
-      "generatedVideo",
-      imageDesc,
-      1
-    )
-    setGenVideos((prev: any) => [...prev, video2?.data?.video?.url])
+    // const imagePrompts = await Promise.all(
+    //   Array.from({ length: scenesNum }, async (_, i) => {
+    //     // await new Promise((resolve) => setTimeout(resolve, 3000))
+    //     return genImagePromptWLlama(
+    //       imageDesc,
+    //       (i + 1).toString(),
+    //       characterDesc
+    //     )
+    //   })
+    // )
+    setGenImagePrompts(imagePrompts)
 
-    const image3Res = await generateImage(image3, 1, previewSource)
-    console.log("image3Res", image3Res)
-    saveImagesToS3FromURL(image3Res, "generated", imageDesc, 1)
-    const video3 = await axios.post("/api/video/generate", {
-      image_url: image3Res[0],
-    })
-    setGenImages((prev: any) => [...prev, image3Res])
-    console.log("video3 ", video3)
-    saveVideoToS3FromURL(
-      video3?.data?.video?.url,
-      "generatedVideo",
-      imageDesc,
-      1
-    )
-    setGenVideos((prev: any) => [...prev, video3?.data?.video?.url])
-
-    const image4Res = await generateImage(image4, 1, previewSource)
-    console.log("image4Res", image4Res)
-    saveImagesToS3FromURL(image4Res, "generated", imageDesc, 1)
-    const video4 = await axios.post("/api/video/generate", {
-      image_url: image4Res[0],
-    })
-    setGenImages((prev: any) => [...prev, image4Res])
-    console.log("video4 ", video4)
-    saveVideoToS3FromURL(
-      video4?.data?.video?.url,
-      "generatedVideo",
-      imageDesc,
-      1
-    )
-    setGenVideos((prev: any) => [...prev, video4?.data?.video?.url])
-
-    // video 5
-    const image5Res = await generateImage(image5, 1, previewSource)
-    console.log("image5Res", image5Res)
-    saveImagesToS3FromURL(image5Res, "generated", imageDesc, 1)
-    const video5 = await axios.post("/api/video/generate", {
-      image_url: image5Res[0],
-    })
-    setGenImages((prev: any) => [...prev, image5Res])
-    console.log("video5 ", video5)
-    const vidUrl5 = await saveVideoToS3FromURL(
-      video5?.data?.video?.url,
-      "generatedVideo",
-      imageDesc,
-      1
-    )
-    setGenVideos((prev: any) => [...prev, video5?.data?.video?.url])
-    const newVideoUrls = [...genVideos, video5?.data?.video?.url]
+    // Assuming imagePrompts is the array of prompts generated in the previous step
+    for (let i = 0; i < imagePrompts.length; i++) {
+      const imagePrompt = imagePrompts[i]
+      const imageRes = await generateImage(imagePrompt, 1, previewSource)
+      console.log(`image${i + 1}Res`, imageRes)
+      saveImagesToS3FromURL(imageRes, "generated", imageDesc, 1)
+      const video = await axios.post("/api/video/generate", {
+        image_url: imageRes[0],
+      })
+      setGenImages((prev: any) => [...prev, imageRes])
+      console.log(`video${i + 1}`, video)
+      const vidUrl = await saveVideoToS3FromURL(
+        video?.data?.video?.url,
+        "generatedVideo",
+        imageDesc,
+        1
+      )
+      setGenVideos((prev: any) => [...prev, video?.data?.video?.url])
+    }
 
     // const combinedVideo = await axios.post("/api/video/combine", {
     //   videoUrls: newVideoUrls,
@@ -323,17 +275,21 @@ const ImageGen = ({ userImagesGen }: any) => {
 
   // Save images to local storage
   return (
-    <div className="flex w-full flex-col items-center">
-      <h1 className="mb-6  mt-12 text-xl">1. Describe your character</h1>
+    <div className="flex w-full flex-col">
+      <h1 className="mb-6  mt-12 text-xl">
+        1. Describe physical appearance of your main character
+      </h1>
       <Textarea
         value={characterDesc}
         onChange={(e) => setCharacterDesc(e.target.value)}
         className="my-4 h-[200px] w-full max-w-[700px]"
-        placeholder="Describe your character"
+        placeholder="Describe physical appearance of your main character"
       />
-      <Button onClick={saveCharacter} className="my-2">
-        save character
-      </Button>
+      <div>
+        <Button onClick={saveCharacter} className="my-2">
+          save character
+        </Button>
+      </div>
       <h2 className="mb-6 mt-12 text-xl">2. Take a selfie</h2>
       <UserImage setPreviewSource={setPreviewSource} />
       <h2 className="mb-6 mt-12 text-xl">
@@ -345,19 +301,29 @@ const ImageGen = ({ userImagesGen }: any) => {
         className="my-4  mb-12 h-[300px] w-full max-w-[700px]"
         placeholder="Describe the film plot"
       />
-      <Button onClick={handleGenFilm} className="my-2">
-        generate film
-      </Button>
-      <Button onClick={handlePost} className="my-2">
-        post to Instagram
-      </Button>
+      <h2 className="mb-6 mt-6 text-xl">Number of Scenes</h2>
+      <Input
+        className="my-4 w-[200px] "
+        value={scenesNum}
+        onChange={(e: any) => setScenesNum(e.target.value)}
+      />
+      <div>
+        <Button onClick={handleGenFilm} className="my-2">
+          generate film
+        </Button>
+      </div>
+      <div>
+        <Button onClick={handlePost} className="my-2">
+          post to Instagram
+        </Button>
+      </div>
       {audioSrc && (
         <div className="my-6 flex flex-col justify-center">
           <h2 className="my-4 text-xl">Short Film Audio</h2>
           <audio controls src={audioSrc} />
         </div>
       )}
-      <IntermediateSteps />
+      <IntermediateSteps userGenVideos={userGenVideos} audioSrc={audioSrc} />
       <GeneratedImages userImagesGen={userImagesGen} />
     </div>
   )

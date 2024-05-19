@@ -1,16 +1,16 @@
-import { BookOpenCheck, LayoutDashboard } from "lucide-react";
+import { BookOpenCheck, LayoutDashboard } from "lucide-react"
 
 export const NavItems: any[] = [
   {
-    title: "Generate",
+    title: "Studio",
     icon: LayoutDashboard,
-    href: "/",
+    href: "/studio",
     color: "text-sky-500",
   },
   {
-    title: "Library",
+    title: "Gallery",
     icon: LayoutDashboard,
-    href: "/",
+    href: "/gallery",
     color: "text-sky-500",
   },
-];
+]

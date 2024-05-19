@@ -2,7 +2,13 @@ import axios from "axios"
 import { NextRequest, NextResponse } from "next/server"
 import { generateImage } from "./helper"
 import { generateVideoFromImage } from "@/lib/helpers/fal"
+import { v2 as cloudinary } from "cloudinary"
 
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+})
 export const replicateClient = axios.create({
   baseURL: "https://dreambooth-api-experimental.replicate.com",
   headers: {

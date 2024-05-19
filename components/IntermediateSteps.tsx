@@ -17,10 +17,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { FaCheckCircle } from "react-icons/fa"
+import { FaTimesCircle } from "react-icons/fa" // Import the X icon
 
 const userId = "123"
 
-const IntermediateSteps = () => {
+const IntermediateSteps = ({ userGenVideos, audioSrc }: any) => {
   const [imagesResults, setImagesResults] = useState([])
   const [faceSwappedImage, setFaceSwappedImage] = useState()
   const [prompt, setPrompt] = useState("")
@@ -29,6 +30,8 @@ const IntermediateSteps = () => {
   const [selectedImage, setSelectedImage] = useState(null) // New state for storing selected image
   const [previewSource, setPreviewSource] = useState("")
   const { uploadToS3, files } = useS3Upload()
+  const [selectedVideos, setSelectedVideos] = useState<any>([])
+  const [combinedVideoElem, setCombinedVideoElem] = useState()
 
   const { toast } = useToast()
   const {
@@ -89,6 +92,51 @@ const IntermediateSteps = () => {
     })
   }
   // Save images to local storage
+
+  const handleVideoSelect = (video) => {
+    setSelectedVideos([...selectedVideos, video])
+  }
+  const handleCombine = async () => {
+    const videoUrls = selectedVideos.map((video) => ({
+      url: video.url,
+      publicId: video.id,
+    }))
+
+    console.log(" { videoUrls: selectedVideos }", { videoUrls: videoUrls })
+
+    try {
+      const response = await axios.post("/api/video/combine", {
+        videoUrls: videoUrls,
+        audioSrc: audioSrc,
+      })
+      console.log(response.data)
+      const updatedVideoElement = response?.data?.combinedVideo?.replace(
+        /<video(.*?)>/,
+        "<video$1 autoplay controls>"
+      )
+      console.log(
+        "updatedVideoElement ",
+        updatedVideoElement,
+        response?.data?.combinedVideo
+      )
+
+      setCombinedVideoElem(updatedVideoElement)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const renderSelectedVideos = () => {
+    return selectedVideos.map((video, index) => (
+      <div key={index} className="video-container">
+        <video src={video.url} /* other video attributes */ />
+        <FaCheckCircle className="text-red bg-green h-8 w-8 text-green-600" />
+      </div>
+    ))
+  }
+  const handleVideoRemove = (videoToRemove) => {
+    setSelectedVideos(selectedVideos.filter((video) => video !== videoToRemove))
+  }
   return (
     <div className="my-8 flex w-full flex-col items-center">
       <Accordion type="multiple" collapsible className="w-full">
@@ -140,6 +188,64 @@ const IntermediateSteps = () => {
             </div>
           </AccordionTrigger>
           <AccordionContent>{renderGenVideos(genVideos)}</AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-6">
+          <AccordionTrigger>
+            {" "}
+            <div className="flex w-full flex-row">Combine Videos</div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <h3>select videos to combine:</h3>
+            <h3 className="my-2 text-xl">Selected Videos to Combine:</h3>
+            <div className="flex w-full flex-row flex-wrap">
+              {selectedVideos.map((video: any, index) => (
+                <div
+                  className="relative" // Add relative to position the X icon
+                  key={index}
+                >
+                  <video
+                    src={video.url}
+                    alt={`Generated Video ${index + 1}`}
+                    className="m-2 rounded-lg shadow-lg"
+                    style={{ width: "200px", height: "auto" }}
+                  />
+                  <FaTimesCircle
+                    className="absolute right-0 top-0 m-2 h-6 w-6 cursor-pointer text-red-600" // Position the X icon
+                    onClick={(e) => {
+                      e.stopPropagation() // Prevent triggering the div's onClick
+                      handleVideoRemove(video)
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            <div>
+              <Button onClick={handleCombine}>Combine</Button>
+            </div>
+            {combinedVideoElem && (
+              <div className="flex rounded-xl border p-4 shadow-xl">
+                <div dangerouslySetInnerHTML={{ __html: combinedVideoElem }} />
+              </div>
+            )}
+
+            <h3 className="my-2 text-xl">Video Gallery:</h3>
+            <div className="flex w-full flex-row flex-wrap">
+              {[...genVideos, ...userGenVideos].map((video: any, index) => (
+                <div
+                  className=""
+                  key={index}
+                  onClick={() => handleVideoSelect(video)}
+                >
+                  <video
+                    src={video.url}
+                    alt={`Generated Video ${index + 1}`}
+                    className="m-2 rounded-lg shadow-lg"
+                    style={{ width: "200px", height: "auto" }}
+                  />
+                </div>
+              ))}
+            </div>
+          </AccordionContent>
         </AccordionItem>
       </Accordion>
     </div>

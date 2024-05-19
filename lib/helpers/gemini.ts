@@ -43,18 +43,22 @@ const generateScriptForAudio = async (scriptText: string) => {
   return text
 }
 
-const genImageStory = async (imageStory: string, characterDesc: string) => {
+const genImageStory = async (
+  imageStory: string,
+  characterDesc: string,
+  scenesNum: string
+) => {
   // For text-only input, use the gemini-pro model
   const model = genAI.getGenerativeModel({
     model: "gemini-pro",
   })
 
   const prompt = `Write a list of detailed descriptions of images that tell this story. 
-    List them from 1-5. 
+    List them from 1-${scenesNum}. 
     For example: 1. The main character is sitting at a desk while the sun is rising outside his window.
 
     Make sure the story features this main character. The main character should appear in the center
-    of every one of the 5 scenes: 
+    of every one of the ${scenesNum} scenes: 
     ${characterDesc}
 
     The story:
@@ -77,7 +81,7 @@ const generateImagePrompts = async (filmScript: string) => {
       {
         parts: [
           {
-            text: `Create 5 image generation prompts based on this film script: ${filmScript}`,
+            text: `Create 10 image generation prompts based on this film script: ${filmScript}`,
           },
         ],
       },

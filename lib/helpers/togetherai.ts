@@ -117,4 +117,5 @@ const callImageGenerateAPIFaceswap = async (
   )
   return results.filter((result) => result !== null)
 }
+
 export { generateImage, faceSwapOnImage }
