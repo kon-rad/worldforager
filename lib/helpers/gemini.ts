@@ -50,11 +50,11 @@ const genImageStory = async (imageStory: string, characterDesc: string) => {
   })
 
   const prompt = `Write a list of detailed descriptions of images that tell this story. 
-    List them from 1-5. 
+    List them from 1-10. 
     For example: 1. The main character is sitting at a desk while the sun is rising outside his window.
 
     Make sure the story features this main character. The main character should appear in the center
-    of every one of the 5 scenes: 
+    of every one of the 10 scenes: 
     ${characterDesc}
 
     The story:
@@ -77,7 +77,7 @@ const generateImagePrompts = async (filmScript: string) => {
       {
         parts: [
           {
-            text: `Create 5 image generation prompts based on this film script: ${filmScript}`,
+            text: `Create 10 image generation prompts based on this film script: ${filmScript}`,
           },
         ],
       },

@@ -8,7 +8,7 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 })
 
-const FOLDER_NAME = "wfvideos/"
+const FOLDER_NAME = "wfvideo/"
 
 export const handleGetCloudinaryUploads = () => {
   return new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ export const handleCloudinaryUpload = (
   path: string,
   concatVideos: any = []
 ) => {
-  let folder = "videos/"
+  let folder = "wfvideo/"
 
   // Array to hold Cloudinary transformation options
   const transformation: any = []

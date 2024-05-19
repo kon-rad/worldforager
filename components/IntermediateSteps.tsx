@@ -31,6 +31,7 @@ const IntermediateSteps = ({ userGenVideos }: any) => {
   const [previewSource, setPreviewSource] = useState("")
   const { uploadToS3, files } = useS3Upload()
   const [selectedVideos, setSelectedVideos] = useState<any>([])
+  const [combinedVideoElem, setCombinedVideoElem] = useState()
 
   const { toast } = useToast()
   const {
@@ -96,10 +97,29 @@ const IntermediateSteps = ({ userGenVideos }: any) => {
     setSelectedVideos([...selectedVideos, video])
   }
   const handleCombine = async () => {
-    const videoUrls = selectedVideos.map((video) => video.url)
+    const videoUrls = selectedVideos.map((video) => ({
+      url: video.url,
+      publicId: video.id,
+    }))
+
+    console.log(" { videoUrls: selectedVideos }", { videoUrls: videoUrls })
+
     try {
-      const response = await axios.post("/api/video/combine", { videoUrls })
+      const response = await axios.post("/api/video/combine", {
+        videoUrls: videoUrls,
+      })
       console.log(response.data)
+      const updatedVideoElement = response?.data?.combinedVideo?.replace(
+        /<video(.*?)>/,
+        "<video$1 autoplay controls>"
+      )
+      console.log(
+        "updatedVideoElement ",
+        updatedVideoElement,
+        response?.data?.combinedVideo
+      )
+
+      setCombinedVideoElem(updatedVideoElement)
     } catch (error) {
       console.error(error)
     }
@@ -171,16 +191,13 @@ const IntermediateSteps = ({ userGenVideos }: any) => {
         <AccordionItem value="item-6">
           <AccordionTrigger>
             {" "}
-            <div className="flex w-full flex-row">
-              <FaCheckCircle className="mr-2 text-green-400" />
-              Combine Videos
-            </div>
+            <div className="flex w-full flex-row">Combine Videos</div>
           </AccordionTrigger>
           <AccordionContent>
             <h3>select videos to combine:</h3>
             <h3 className="my-2 text-xl">Selected Videos to Combine:</h3>
             <div className="flex w-full flex-row flex-wrap">
-              {selectedVideos.map((video: any, index) => (
+              {genVideos.map((video: any, index) => (
                 <div
                   className="relative" // Add relative to position the X icon
                   key={index}
@@ -204,6 +221,12 @@ const IntermediateSteps = ({ userGenVideos }: any) => {
             <div>
               <Button onClick={handleCombine}>Combine</Button>
             </div>
+            {combinedVideoElem && (
+              <div className="flex rounded-xl border p-4 shadow-xl">
+                <div dangerouslySetInnerHTML={{ __html: combinedVideoElem }} />
+              </div>
+            )}
+
             <h3 className="my-2 text-xl">Video Gallery:</h3>
             <div className="flex w-full flex-row flex-wrap">
               {userGenVideos.map((video: any, index) => (
